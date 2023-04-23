@@ -1,0 +1,68 @@
+digraph G {
+compound=true;
+	subgraph cluster_orig {
+	origS0 [shape=circle,label="S0",color=green];
+	origI0 [shape=point];
+	origS1 [shape=circle,label="S1",color=green];
+	origS2 [shape=doublecircle,label="S2",color=green];
+	origI0->origS0;
+	origS0->origS1 [label="a"];
+	origS1->origS2 [label="(a|b)*"];
+	origS1->origS1 [label="&#x3B5;"];
+	origS0->origS2 [label="c"];
+}
+	subgraph cluster_dfa {
+	dfaS0 [shape=circle,label="S0",color=green];
+	dfaI0 [shape=point];
+	dfaS1 [shape=doublecircle,label="S1",color=green];
+	dfaS2 [shape=doublecircle,label="S2",color=green];
+	dfaS3 [shape=doublecircle,label="S3",color=green];
+	dfaS4 [shape=doublecircle,label="S4",color=green];
+	dfaI0->dfaS0;
+	dfaS0->dfaS1 [label="a"];
+	dfaS0->dfaS2 [label="c"];
+	dfaS1->dfaS3 [label="b"];
+	dfaS1->dfaS4 [label="a"];
+	dfaS3->dfaS4 [label="a"];
+	dfaS3->dfaS3 [label="b"];
+	dfaS4->dfaS3 [label="b"];
+	dfaS4->dfaS4 [label="a"];
+}
+	subgraph cluster_nfait {
+	nfaitS0 [shape=circle,label="S0",color=green];
+	nfaitI0 [shape=point];
+	nfaitS1 [shape=doublecircle,label="S1",color=green];
+	nfaitS2 [shape=circle,label="S2",color=green];
+	nfaitS3 [shape=circle,label="S3",color=green];
+	nfaitS4 [shape=circle,label="S4",color=green];
+	nfaitS5 [shape=circle,label="S5",color=green];
+	nfaitS6 [shape=circle,label="S6",color=green];
+	nfaitS7 [shape=circle,label="S7",color=green];
+	nfaitS8 [shape=circle,label="S8",color=green];
+	nfaitS9 [shape=circle,label="S9",color=green];
+	nfaitS10 [shape=circle,label="S10",color=green];
+	nfaitI0->nfaitS0;
+	nfaitS2->nfaitS3 [label="a"];
+	nfaitS5->nfaitS6 [label="b"];
+	nfaitS5->nfaitS7 [label="a"];
+	nfaitS6->nfaitS6 [label="b"];
+	nfaitS6->nfaitS7 [label="a"];
+	nfaitS7->nfaitS7 [label="a"];
+	nfaitS7->nfaitS6 [label="b"];
+	nfaitS9->nfaitS10 [label="c"];
+	nfaitS0->nfaitS2 [label="&#x3B5;",style=dashed];
+	nfaitS0->nfaitS9 [label="&#x3B5;",style=dashed];
+	nfaitS3->nfaitS4 [label="&#x3B5;",style=dashed];
+	nfaitS4->nfaitS8 [label="&#x3B5;",style=dashed];
+	nfaitS4->nfaitS5 [label="&#x3B5;",style=dashed];
+	nfaitS5->nfaitS1 [label="&#x3B5;",style=dashed];
+	nfaitS6->nfaitS1 [label="&#x3B5;",style=dashed];
+	nfaitS7->nfaitS1 [label="&#x3B5;",style=dashed];
+	nfaitS8->nfaitS4 [label="&#x3B5;",style=dashed];
+	nfaitS10->nfaitS1 [label="&#x3B5;",style=dashed];
+}
+	bre [label="c|(a(a|b)*)"];
+	origS2->dfaI0 [label="to_dfa",ltail=cluster_orig,lhead=cluster_dfa];
+	origS2->nfaitI0 [label="to_nfait",ltail=cluster_orig,lhead=cluster_nfait];
+	origS2->bre [label="to_bre",ltail=cluster_orig];
+}

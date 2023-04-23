@@ -1,0 +1,22 @@
+[package]
+name = "autour_core"
+version = "0.1.0"
+authors = ["Erwan Mahe"]
+edition = "2021"
+
+license = "Apache-2.0"
+description = "AUTOmata Utilities and Representation (AUTOUR) is a small toolbox to experiment with various kinds of automata and draw them"
+
+readme = "README.md"
+repository = "https://github.com/erwanM974/autour_core"
+homepage = "https://github.com/erwanM974/autour_core"
+
+keywords = ["automata", "dfa", "nfa", "nfait", "gnfa", "regex", "bre", "ere"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+maplit = "1.0.2"
+strum = "0.24.1"                                # for IntoStaticStr
+strum_macros = "0.24.3"                         # ...
+graphviz_dot_builder = "0.1.2"                  # for drawing graphs

@@ -1,0 +1,96 @@
+digraph G {
+compound=true;
+	subgraph cluster_init {
+	initS0 [shape=circle,label="S0",color=green];
+	initI0 [shape=point];
+	initS1 [shape=doublecircle,label="S1",color=green];
+	initS2 [shape=doublecircle,label="S2",color=green];
+	initS3 [shape=circle,label="S3",color=green];
+	initS4 [shape=doublecircle,label="S4",color=green];
+	initS5 [shape=circle,label="S5",color=purple];
+	initS6 [shape=circle,label="S6",color=red];
+	initS7 [shape=circle,label="S7",color=navy];
+	initI0->initS0;
+	initS0->initS3 [label="a"];
+	initS0->initS1 [label="b"];
+	initS1->initS2 [label="a"];
+	initS1->initS5 [label="b"];
+	initS2->initS2 [label="a"];
+	initS3->initS0 [label="a"];
+	initS3->initS4 [label="b"];
+	initS4->initS2 [label="a"];
+	initS4->initS5 [label="b"];
+	initS5->initS5 [label="a"];
+	initS5->initS5 [label="b"];
+	initS6->initS5 [label="b"];
+	initS7->initS2 [label="b"];
+}
+	subgraph cluster_acc {
+	accS0 [shape=circle,label="S0",color=green];
+	accI0 [shape=point];
+	accS1 [shape=doublecircle,label="S1",color=green];
+	accS2 [shape=doublecircle,label="S2",color=green];
+	accS3 [shape=circle,label="S3",color=green];
+	accS4 [shape=doublecircle,label="S4",color=green];
+	accS5 [shape=circle,label="S5",color=purple];
+	accI0->accS0;
+	accS0->accS3 [label="a"];
+	accS0->accS1 [label="b"];
+	accS1->accS2 [label="a"];
+	accS1->accS5 [label="b"];
+	accS2->accS2 [label="a"];
+	accS3->accS0 [label="a"];
+	accS3->accS4 [label="b"];
+	accS4->accS2 [label="a"];
+	accS4->accS5 [label="b"];
+	accS5->accS5 [label="a"];
+	accS5->accS5 [label="b"];
+}
+	subgraph cluster_coacc {
+	coaccS0 [shape=circle,label="S0",color=green];
+	coaccI0 [shape=point];
+	coaccS1 [shape=doublecircle,label="S1",color=green];
+	coaccS2 [shape=doublecircle,label="S2",color=green];
+	coaccS3 [shape=circle,label="S3",color=green];
+	coaccS4 [shape=doublecircle,label="S4",color=green];
+	coaccS5 [shape=circle,label="S5",color=navy];
+	coaccI0->coaccS0;
+	coaccS0->coaccS1 [label="b"];
+	coaccS0->coaccS3 [label="a"];
+	coaccS1->coaccS2 [label="a"];
+	coaccS2->coaccS2 [label="a"];
+	coaccS3->coaccS4 [label="b"];
+	coaccS3->coaccS0 [label="a"];
+	coaccS4->coaccS2 [label="a"];
+	coaccS5->coaccS2 [label="b"];
+}
+	subgraph cluster_trim {
+	trimS0 [shape=circle,label="S0",color=green];
+	trimI0 [shape=point];
+	trimS1 [shape=doublecircle,label="S1",color=green];
+	trimS2 [shape=doublecircle,label="S2",color=green];
+	trimS3 [shape=circle,label="S3",color=green];
+	trimS4 [shape=doublecircle,label="S4",color=green];
+	trimI0->trimS0;
+	trimS0->trimS1 [label="b"];
+	trimS0->trimS3 [label="a"];
+	trimS1->trimS2 [label="a"];
+	trimS2->trimS2 [label="a"];
+	trimS3->trimS0 [label="a"];
+	trimS3->trimS4 [label="b"];
+	trimS4->trimS2 [label="a"];
+}
+	subgraph cluster_mini {
+	miniS0 [shape=circle,label="S0",color=green];
+	miniI0 [shape=point];
+	miniS1 [shape=doublecircle,label="S1",color=green];
+	miniI0->miniS0;
+	miniS0->miniS0 [label="a"];
+	miniS0->miniS1 [label="b"];
+	miniS1->miniS1 [label="a"];
+}
+	initS5->miniI0 [label="minimize",ltail=cluster_init,lhead=cluster_mini];
+	initS5->accI0 [label="make accessible",ltail=cluster_init,lhead=cluster_acc];
+	initS5->coaccI0 [label="make coaccessible",ltail=cluster_init,lhead=cluster_coacc];
+	initS5->trimI0 [label="trim",ltail=cluster_init,lhead=cluster_trim];
+}

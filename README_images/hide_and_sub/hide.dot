@@ -1,0 +1,38 @@
+digraph G {
+compound=true;
+	subgraph cluster_init {
+	initS0 [shape=circle,label="S0",color=green];
+	initI0 [shape=point];
+	initS1 [shape=circle,label="S1",color=green];
+	initS2 [shape=doublecircle,label="S2",color=green];
+	initI0->initS0;
+	initS0->initS2 [label="d"];
+	initS0->initS1 [label="(a|b)*"];
+	initS1->initS1 [label="&#x3B5;"];
+	initS1->initS2 [label="bc"];
+}
+	subgraph cluster_hide {
+	hideS0 [shape=circle,label="S0",color=green];
+	hideI0 [shape=point];
+	hideS1 [shape=circle,label="S1",color=green];
+	hideS2 [shape=doublecircle,label="S2",color=green];
+	hideI0->hideS0;
+	hideS1->hideS1 [label="&#x3B5;"];
+	hideS0->hideS1 [label="a*"];
+	hideS0->hideS2 [label="d"];
+	hideS1->hideS2 [label="c"];
+}
+	subgraph cluster_subs {
+	subsS0 [shape=circle,label="S0",color=green];
+	subsI0 [shape=point];
+	subsS1 [shape=circle,label="S1",color=green];
+	subsS2 [shape=doublecircle,label="S2",color=green];
+	subsI0->subsS0;
+	subsS0->subsS2 [label="d"];
+	subsS1->subsS1 [label="&#x3B5;"];
+	subsS0->subsS1 [label="(a|c)*"];
+	subsS1->subsS2 [label="cc"];
+}
+	initS2->hideI0 [label="hide letters",ltail=cluster_init,lhead=cluster_hide];
+	initS2->subsI0 [label="substitute letters",ltail=cluster_init,lhead=cluster_subs];
+}
