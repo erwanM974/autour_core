@@ -21,7 +21,8 @@ use crate::nfa::nfa::AutNFA;
 use crate::traits::letter::AutLetter;
 use crate::traits::build::AutBuildable;
 use crate::traits::error::AutError;
-use crate::utils::{shift_hashset_of_usize, shift_hashmaps_of_hashset_usize};
+use crate::utils::{shift_hashmaps_of_hashset_usize};
+
 
 impl<Letter: AutLetter> AutBuildable<Letter> for AutNFA<Letter> {
     fn unite(mut self, other: Self) -> Result<Self,AutError<Letter>> {
@@ -117,7 +118,7 @@ impl<Letter: AutLetter> AutBuildable<Letter> for AutNFA<Letter> {
         // add the anchor state as a final state
         self.finals.insert(l);
         // ***
-        return self;
+        self
     }
 
     fn at_most(mut self, num: usize) -> Self {
@@ -129,7 +130,7 @@ impl<Letter: AutLetter> AutBuildable<Letter> for AutNFA<Letter> {
             self.transitions.push(HashMap::new());
         }
         // ***
-        return self.repeat(num);
+        self.repeat(num)
     }
 
     fn at_least(self, num: usize) -> Self {

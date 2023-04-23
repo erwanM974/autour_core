@@ -16,12 +16,10 @@ limitations under the License.
 
 use std::ops::RangeBounds;
 use std::ops::Bound::{Included,Excluded,Unbounded};
-use maplit::{btreeset, hashset};
 
 use crate::bre::bre::ExpBRE;
 use crate::bre::term::TermBRE;
 
-use crate::nfa::nfa::AutNFA;
 use crate::traits::letter::AutLetter;
 use crate::traits::build::AutBuildable;
 use crate::traits::error::AutError;
@@ -69,11 +67,11 @@ impl<Letter: AutLetter> AutBuildable<Letter> for ExpBRE<Letter> {
         self.repeat(num)
     }
 
-    fn at_least(mut self, num: usize) -> ExpBRE<Letter> {
+    fn at_least(self, num: usize) -> ExpBRE<Letter> {
         self.clone().repeat(num).concatenate(self.kleene()).unwrap()
     }
 
-    fn repeat_range<R: RangeBounds<usize>>(mut self, r: R) -> Self {
+    fn repeat_range<R: RangeBounds<usize>>(self, r: R) -> Self {
         let start = match r.start_bound() {
             Included(&a) => a,
             Excluded(&a) => a + 1,

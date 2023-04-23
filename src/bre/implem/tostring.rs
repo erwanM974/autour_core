@@ -14,8 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-use core::fmt;
-use std::collections::HashSet;
+
 use crate::bre::bre::ExpBRE;
 use crate::bre::term::TermBRE;
 
@@ -81,7 +80,7 @@ impl<Letter, Printer> ExpBREPrintable<Letter, Printer> for TermBRE<Letter> where
                          t.is_string_repr_atomic::<Printer>()))
                         .collect();
                 let sub_strs : Vec<String> =
-                if Printer::get_concatenation_separator(false).len() > 0 {
+                if !Printer::get_concatenation_separator(false).is_empty() {
                     sub_strs_atoms.into_iter()
                         .map(|(repr,is_atomic)|
                             if is_atomic {
@@ -105,7 +104,7 @@ impl<Letter, Printer> ExpBREPrintable<Letter, Printer> for TermBRE<Letter> where
                          t.is_string_repr_atomic::<Printer>()))
                     .collect();
                 let sub_strs : Vec<String> =
-                    if Printer::get_alternation_separator(false).len() > 0 {
+                    if !Printer::get_alternation_separator(false).is_empty() {
                         sub_strs_atoms.into_iter()
                             .map(|(repr,is_atomic)|
                                 if is_atomic {

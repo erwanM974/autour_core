@@ -14,8 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-use std::collections::{BTreeSet, HashSet, VecDeque};
-use std::ops::{Add, AddAssign, Mul};
+use std::collections::{BTreeSet, HashSet};
 use maplit::hashset;
 
 use crate::traits::letter::AutLetter;

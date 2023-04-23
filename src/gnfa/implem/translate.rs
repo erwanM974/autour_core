@@ -16,8 +16,8 @@ limitations under the License.
 
 use std::collections::{HashMap, HashSet};
 use maplit::{hashset,hashmap};
+
 use crate::bre::bre::ExpBRE;
-use crate::bre::term::TermBRE;
 use crate::dfa::dfa::AutDFA;
 use crate::traits::letter::AutLetter;
 use crate::traits::translate::AutTranslatable;

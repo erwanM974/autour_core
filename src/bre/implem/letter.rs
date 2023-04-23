@@ -17,14 +17,13 @@ limitations under the License.
 
 
 use std::collections::HashSet;
-use maplit::{btreeset,hashmap};
+use maplit::btreeset;
 
 use crate::bre::bre::ExpBRE;
 use crate::bre::term::TermBRE;
 
 use crate::traits::error::AutError;
 use crate::traits::letter::{AutAlphabetSubstitutable, AutLetter};
-use crate::traits::translate::AutTranslatable;
 
 
 impl<Letter: AutLetter> AutAlphabetSubstitutable<Letter> for TermBRE<Letter> {

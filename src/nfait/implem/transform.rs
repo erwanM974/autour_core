@@ -15,9 +15,8 @@ limitations under the License.
 */
 
 use std::collections::{HashMap, HashSet};
-use std::iter::FromIterator;
-use maplit::{hashset,hashmap};
-use crate::dfa::dfa::AutDFA;
+use maplit::hashmap;
+
 use crate::nfait::nfait::AutNFAIT;
 use crate::traits::build::AutBuildable;
 use crate::traits::letter::AutLetter;
@@ -74,8 +73,8 @@ impl<Letter: AutLetter> AutTransformable<Letter> for AutNFAIT<Letter> {
 
     fn is_empty(&self) -> bool {
         // by def
-        /// let set_of_accessible_states = self.get_all_accessible_states();
-        /// return set_of_accessible_states.is_disjoint(&self.finals);
+        // // let set_of_accessible_states = self.get_all_accessible_states();
+        // // return set_of_accessible_states.is_disjoint(&self.finals);
         // more efficient
         if !self.initials.is_disjoint(&self.finals) {
             return false; // because accepts empty word

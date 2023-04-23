@@ -14,22 +14,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 
-use graphviz_dot_builder::colors::GraphvizColor;
 use graphviz_dot_builder::edge::edge::GraphVizEdge;
-use graphviz_dot_builder::edge::style::{GvEdgeLineStyle,GraphvizEdgeStyleItem};
+use graphviz_dot_builder::edge::style::{GraphvizEdgeStyleItem};
 use graphviz_dot_builder::graph::graph::GraphVizDiGraph;
 use graphviz_dot_builder::item::node::node::GraphVizNode;
-use graphviz_dot_builder::item::node::style::{GraphvizNodeStyle, GraphvizNodeStyleItem, GvNodeShape};
+use graphviz_dot_builder::item::node::style::{GraphvizNodeStyleItem, GvNodeShape};
 use graphviz_dot_builder::traits::DotBuildable;
-use crate::bre::term::TermBRE;
 
+use crate::bre::term::TermBRE;
 use crate::gnfa::gnfa::AutGNFA;
 use crate::traits::access::AutAccessible;
 use crate::traits::letter::AutLetter;
 use crate::traits::repr::{AbstractLanguagePrinter, AUT_COLOR_ACCESSIBLE_STATE, AUT_COLOR_ACTIVE_STATE, AUT_COLOR_COACCESSIBLE_STATE, AUT_COLOR_OTHER_STATE, AUT_COLOR_TRIMMED_STATE, AutGraphvizDrawable, ExpBREPrintable};
-use crate::traits::translate::AutTranslatable;
 
 
 

@@ -16,6 +16,7 @@ limitations under the License.
 
 use std::collections::{HashMap, HashSet};
 use maplit::{hashset,hashmap};
+
 use crate::traits::letter::AutLetter;
 use crate::traits::error::AutError;
 use crate::utils::{shift_hashmaps_of_hashset_usize, shift_hashset_of_usize};
@@ -76,7 +77,7 @@ impl<Letter : AutLetter> AutNFA<Letter> {
 
     /// Returns a NFA that accepts only the empty word.
     pub fn new_empty_word(alphabet: HashSet<Letter>) -> Self {
-        return AutNFA::new_length(alphabet,0);
+        AutNFA::new_length(alphabet,0)
     }
 
     /// Returns a NFA that accepts no word
@@ -103,7 +104,7 @@ impl<Letter : AutLetter> AutNFA<Letter> {
             nfa.transitions[letter_index].insert(*letter, hashset!{letter_index + 1});
         }
         // ***
-        return nfa;
+        nfa
     }
 
     /// Returns an automaton built from the raw arguments.

@@ -18,6 +18,7 @@ limitations under the License.
 
 use std::collections::{HashMap, HashSet};
 use maplit::hashmap;
+
 use crate::bre::term::TermBRE;
 use crate::gnfa::gnfa::AutGNFA;
 use crate::traits::error::AutError;

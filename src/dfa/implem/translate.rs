@@ -16,8 +16,8 @@ limitations under the License.
 
 use std::collections::HashSet;
 use maplit::hashset;
-use crate::bre::bre::ExpBRE;
 
+use crate::bre::bre::ExpBRE;
 use crate::dfa::dfa::AutDFA;
 use crate::gnfa::gnfa::AutGNFA;
 use crate::nfa::nfa::AutNFA;
@@ -39,7 +39,8 @@ impl<Letter : AutLetter> AutTranslatable<Letter> for AutDFA<Letter> {
         for dfa_transitions_map in &self.transitions {
             transitions.push(dfa_transitions_map.iter().map(|(letter, target_stid)| (*letter, hashset!{*target_stid})).collect());
         }
-        return AutNFA::from_raw(self.alphabet.clone(), initials,self.finals.clone(), transitions).unwrap();
+        // ***
+        AutNFA::from_raw(self.alphabet.clone(), initials,self.finals.clone(), transitions).unwrap()
     }
 
     fn to_nfait(&self) -> AutNFAIT<Letter> {

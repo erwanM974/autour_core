@@ -14,21 +14,19 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 use maplit::hashset;
+
 use crate::dfa::dfa::AutDFA;
 use crate::traits::access::AutAccessible;
-use crate::traits::build::AutBuildable;
 use crate::traits::letter::AutLetter;
 use crate::traits::translate::AutTranslatable;
-
 
 
 impl<Letter: AutLetter> AutAccessible for AutDFA<Letter> {
 
     fn is_accessible(&self) -> bool {
-        let set_of_accessible_states = self.get_all_accessible_states();
-        return set_of_accessible_states.len() == self.transitions.len();
+        self.get_all_accessible_states().len() == self.transitions.len()
     }
 
     fn get_all_accessible_states(&self) -> HashSet<usize> {
@@ -36,13 +34,14 @@ impl<Letter: AutLetter> AutAccessible for AutDFA<Letter> {
         let mut stack = vec![self.initial];
         while let Some(origin_state) = stack.pop() {
             for target_state in self.transitions[origin_state].values() {
-                if !set_of_accessible_states.contains(&target_state) {
+                if !set_of_accessible_states.contains(target_state) {
                     set_of_accessible_states.insert(*target_state);
                     stack.push(*target_state);
                 }
             }
         }
-        return set_of_accessible_states;
+        // ***
+        set_of_accessible_states
     }
 
     fn make_accessible(self) -> Self {
@@ -50,8 +49,7 @@ impl<Letter: AutLetter> AutAccessible for AutDFA<Letter> {
     }
 
     fn is_coaccessible(&self) -> bool {
-        let set_of_coaccessible_states = self.get_all_coaccessible_states();
-        set_of_coaccessible_states.len() == self.transitions.len()
+        self.get_all_coaccessible_states().len() == self.transitions.len()
     }
 
     fn get_all_coaccessible_states(&self) -> HashSet<usize> {
@@ -59,17 +57,16 @@ impl<Letter: AutLetter> AutAccessible for AutDFA<Letter> {
         let mut stack: Vec<usize> = self.finals.iter().cloned().collect();
         while let Some(next_state) = stack.pop() {
             for (orig_state,transitions) in self.transitions.iter().enumerate() {
-                for (_,target_state) in transitions {
-                    if next_state == *target_state {
-                        if !set_of_coaccessible_states.contains(&orig_state) {
-                            set_of_coaccessible_states.insert(orig_state);
-                            stack.push(orig_state);
-                        }
+                for target_state in transitions.values() {
+                    if next_state == *target_state && !set_of_coaccessible_states.contains(&orig_state) {
+                        set_of_coaccessible_states.insert(orig_state);
+                        stack.push(orig_state);
                     }
                 }
             }
         }
-        return set_of_coaccessible_states;
+        // ***
+        set_of_coaccessible_states
     }
 
     fn make_coaccessible(self) -> Self {

@@ -15,13 +15,14 @@ limitations under the License.
 */
 
 
-
 use std::collections::{HashMap, HashSet};
 use maplit::hashmap;
+
 use crate::nfa::nfa::AutNFA;
 use crate::traits::error::AutError;
 use crate::traits::letter::{AutAlphabetSubstitutable, AutLetter};
 use crate::traits::translate::AutTranslatable;
+
 
 impl<Letter: AutLetter> AutAlphabetSubstitutable<Letter> for AutNFA<Letter> {
 

@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 use std::collections::{HashMap, HashSet};
+
 use crate::traits::letter::AutLetter;
 use crate::traits::error::AutError;
 

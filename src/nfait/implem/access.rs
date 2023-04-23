@@ -16,15 +16,12 @@ limitations under the License.
 
 use std::collections::{HashMap, HashSet};
 use std::iter::FromIterator;
-use std::ptr::hash;
-use maplit::{hashmap,hashset};
+use maplit::{hashset};
 
 use crate::nfait::nfait::AutNFAIT;
 use crate::traits::access::AutAccessible;
-use crate::traits::build::AutBuildable;
 use crate::traits::letter::AutLetter;
 use crate::traits::transform::AutTransformable;
-use crate::traits::translate::AutTranslatable;
 
 
 impl <Letter: AutLetter> AutNFAIT<Letter> {
@@ -33,7 +30,7 @@ impl <Letter: AutLetter> AutNFAIT<Letter> {
         let mut to_iter: Vec<usize> = states.iter().cloned().collect();
         while let Some(next) = to_iter.pop() {
             if !closure.contains(&next) {
-                let mut next_targets : &HashSet<usize> = self.epsilon_trans.get(next).unwrap();
+                let next_targets : &HashSet<usize> = self.epsilon_trans.get(next).unwrap();
                 let mut as_target_vec : Vec<usize> = next_targets.iter().cloned().collect();
                 to_iter.append( &mut as_target_vec);
                 closure.insert(next);
@@ -140,11 +137,10 @@ impl<Letter: AutLetter> AutAccessible for AutNFAIT<Letter> {
         let mut stack: Vec<usize> = self.finals.iter().cloned().collect();
         while let Some(target_state) = stack.pop() {
             for orig_state in 0..self.transitions.len() {
-                if targets_of.get(orig_state).unwrap().contains(&target_state) {
-                    if !set_of_coaccessible_states.contains(&orig_state) {
-                        set_of_coaccessible_states.insert(orig_state);
-                        stack.push(orig_state);
-                    }
+                if targets_of.get(orig_state).unwrap().contains(&target_state)
+                        && !set_of_coaccessible_states.contains(&orig_state) {
+                    set_of_coaccessible_states.insert(orig_state);
+                    stack.push(orig_state);
                 }
             }
         }

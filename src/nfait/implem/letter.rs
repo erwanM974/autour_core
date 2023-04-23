@@ -15,9 +15,9 @@ limitations under the License.
 */
 
 
-
 use std::collections::{HashMap, HashSet};
 use maplit::hashmap;
+
 use crate::nfait::nfait::AutNFAIT;
 use crate::traits::error::AutError;
 use crate::traits::letter::{AutAlphabetSubstitutable, AutLetter};

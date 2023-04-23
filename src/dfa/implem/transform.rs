@@ -14,19 +14,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
+
 use crate::dfa::dfa::AutDFA;
 use crate::traits::build::AutBuildable;
 use crate::traits::letter::AutLetter;
 use crate::traits::transform::AutTransformable;
 use crate::traits::translate::AutTranslatable;
 
+
 impl<Letter : AutLetter> AutTransformable<Letter> for AutDFA<Letter> {
 
     fn is_complete(&self) -> bool {
         for map in &self.transitions {
             for letter in &self.alphabet {
-                if !map.contains_key(&letter) {
+                if !map.contains_key(letter) {
                     return false;
                 }
             }
@@ -45,10 +47,10 @@ impl<Letter : AutLetter> AutTransformable<Letter> for AutDFA<Letter> {
         self.transitions.push(HashMap::new());
         // we iterate on the states
         for map in &mut self.transitions {
-            for v in &self.alphabet {
+            for letter in &self.alphabet {
                 // check if there is an outgoing transition with latter v
-                if !map.contains_key(&v) {
-                    map.insert(*v, new_state_id);
+                if !map.contains_key(letter) {
+                    map.insert(*letter, new_state_id);
                 }
             }
         }
@@ -67,7 +69,7 @@ impl<Letter : AutLetter> AutTransformable<Letter> for AutDFA<Letter> {
     fn negate(mut self) -> Self {
         self = self.complete();
         self.finals = (0..self.transitions.len())
-            .filter(|x| !self.finals.contains(&x))
+            .filter(|x| !self.finals.contains(x))
             .collect();
         // ***
         self

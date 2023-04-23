@@ -14,10 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-use std::collections::{BTreeSet, HashMap, HashSet, VecDeque};
+use std::collections::{BTreeSet, HashMap, VecDeque};
 use maplit::hashset;
+
 use crate::bre::bre::ExpBRE;
-use crate::bre::term::TermBRE;
 use crate::dfa::dfa::AutDFA;
 use crate::gnfa::gnfa::AutGNFA;
 use crate::nfa::nfa::AutNFA;
@@ -51,7 +51,7 @@ impl<Letter : AutLetter> AutTranslatable<Letter> for AutNFA<Letter> {
             for letter in &self.alphabet {
                 let mut targets_in_nfa : BTreeSet<usize> = BTreeSet::new();
                 for nfa_state in &states_ids_in_nfa {
-                    if let Some(transitions) = self.transitions[*nfa_state].get(&letter) {
+                    if let Some(transitions) = self.transitions[*nfa_state].get(letter) {
                         for t in transitions {
                             targets_in_nfa.insert(*t);
                         }

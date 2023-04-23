@@ -14,20 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-use std::collections::{HashMap, HashSet};
-use std::iter::FromIterator;
-use maplit::{hashset,hashmap};
-use crate::dfa::dfa::AutDFA;
 use crate::gnfa::gnfa::AutGNFA;
-use crate::nfait::nfait::AutNFAIT;
-use crate::traits::access::AutAccessible;
 use crate::traits::build::AutBuildable;
 use crate::traits::letter::AutLetter;
 use crate::traits::transform::AutTransformable;
 use crate::traits::translate::AutTranslatable;
-
-
-
 
 
 impl<Letter: AutLetter> AutTransformable<Letter> for AutGNFA<Letter> {
@@ -36,11 +27,12 @@ impl<Letter: AutLetter> AutTransformable<Letter> for AutGNFA<Letter> {
         self.to_nfait().is_complete()
     }
 
-    fn complete(mut self) -> Self {
+    fn complete(self) -> Self {
         if self.is_complete() {
-            return self;
+            self
+        } else {
+            self.to_nfait().complete().to_gnfa()
         }
-        self.to_nfait().complete().to_gnfa()
     }
 
     fn is_empty(&self) -> bool {
@@ -55,7 +47,7 @@ impl<Letter: AutLetter> AutTransformable<Letter> for AutGNFA<Letter> {
         self.to_nfait().negate().to_gnfa()
     }
 
-    fn reverse(mut self) -> Self {
+    fn reverse(self) -> Self {
         self.to_nfait().reverse().to_gnfa()
     }
 

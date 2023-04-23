@@ -36,7 +36,8 @@ impl<Letter: AutLetter> AutRunnable<Letter> for AutDFA<Letter> {
                 }
             }
         }
-        return Ok(self.finals.contains(&current_state));
+        // ***
+        Ok(self.finals.contains(&current_state))
     }
 
     fn run_transition(&self,
@@ -48,10 +49,10 @@ impl<Letter: AutLetter> AutRunnable<Letter> for AutDFA<Letter> {
         let init_state = *active_states.iter().next().unwrap();
         match self.transitions[init_state].get(letter) {
             None => {
-                return Ok(hashset!{});
+                Ok(hashset!{})
             },
             Some(target_state) => {
-                return Ok(hashset!{*target_state});
+                Ok(hashset!{*target_state})
             }
         }
     }

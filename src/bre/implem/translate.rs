@@ -23,11 +23,11 @@ use crate::dfa::dfa::AutDFA;
 use crate::gnfa::gnfa::AutGNFA;
 use crate::nfa::nfa::AutNFA;
 use crate::nfait::nfait::AutNFAIT;
-use crate::traits::access::AutAccessible;
 
 use crate::traits::letter::AutLetter;
 use crate::traits::build::AutBuildable;
 use crate::traits::translate::AutTranslatable;
+
 
 impl<Letter : AutLetter> AutTranslatable<Letter> for ExpBRE<Letter> {
     fn to_dfa(&self) -> AutDFA<Letter> {

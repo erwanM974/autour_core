@@ -16,7 +16,7 @@ limitations under the License.
 
 
 use std::collections::HashSet;
-use std::fmt::{Debug, Display};
+use std::fmt::Debug;
 use std::hash::Hash;
 
 use crate::traits::error::AutError;

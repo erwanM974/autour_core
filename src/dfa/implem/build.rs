@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 use std::ops::RangeBounds;
+
 use crate::dfa::dfa::AutDFA;
 use crate::traits::letter::AutLetter;
 use crate::traits::build::AutBuildable;

@@ -16,10 +16,12 @@ limitations under the License.
 
 use std::collections::{HashMap, HashSet};
 use maplit::{hashset,hashmap};
+
 use crate::nfa::nfa::AutNFA;
 use crate::traits::letter::AutLetter;
 use crate::traits::error::AutError;
 use crate::utils::{shift_hashmaps_of_hashset_usize, shift_hashset_of_usize, shift_vec_of_hashset_usize};
+
 
 #[derive(Debug, Clone)]
 pub struct AutNFAIT<Letter : AutLetter> {

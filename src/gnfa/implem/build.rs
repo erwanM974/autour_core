@@ -14,14 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-use std::collections::{HashMap, HashSet};
 use std::ops::RangeBounds;
-use std::ops::Bound::{Included,Excluded,Unbounded};
+
 use crate::gnfa::gnfa::AutGNFA;
 use crate::traits::letter::AutLetter;
 use crate::traits::build::AutBuildable;
-use crate::utils::{shift_hashset_of_usize, shift_hashmaps_of_hashset_usize, shift_vec_of_hashset_usize};
-use crate::nfait::nfait::AutNFAIT;
 use crate::traits::error::AutError;
 
 impl<Letter: AutLetter> AutBuildable<Letter> for AutGNFA<Letter> {

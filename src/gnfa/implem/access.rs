@@ -15,18 +15,13 @@ limitations under the License.
 */
 
 use std::collections::{HashMap, HashSet};
-use std::iter::FromIterator;
 use maplit::{hashmap,hashset};
+
 use crate::bre::term::TermBRE;
 use crate::gnfa::gnfa::AutGNFA;
-
-use crate::nfait::nfait::AutNFAIT;
 use crate::traits::access::AutAccessible;
-use crate::traits::build::AutBuildable;
 use crate::traits::letter::AutLetter;
 use crate::traits::transform::AutTransformable;
-use crate::traits::translate::AutTranslatable;
-
 
 
 
@@ -42,11 +37,9 @@ impl<Letter: AutLetter> AutAccessible for AutGNFA<Letter> {
         while let Some(origin_state) = stack.pop() {
             for target_state in 0..self.states_num {
                 if let Some(regexp) = self.transitions.get(&(origin_state,target_state)) {
-                    if !regexp.is_empty() {
-                        if !set_of_accessible_states.contains(&target_state) {
-                            set_of_accessible_states.insert(target_state);
-                            stack.push(target_state);
-                        }
+                    if !regexp.is_empty() && !set_of_accessible_states.contains(&target_state) {
+                        set_of_accessible_states.insert(target_state);
+                        stack.push(target_state);
                     }
                 }
             }
@@ -68,11 +61,9 @@ impl<Letter: AutLetter> AutAccessible for AutGNFA<Letter> {
         while let Some(target_state) = stack.pop() {
             for origin_state in 0..self.states_num {
                 if let Some(regexp) = self.transitions.get(&(origin_state,target_state)) {
-                    if !regexp.is_empty() {
-                        if !set_of_coaccessible_states.contains(&origin_state) {
-                            set_of_coaccessible_states.insert(origin_state);
-                            stack.push(origin_state);
-                        }
+                    if !regexp.is_empty() && !set_of_coaccessible_states.contains(&origin_state) {
+                        set_of_coaccessible_states.insert(origin_state);
+                        stack.push(origin_state);
                     }
                 }
             }

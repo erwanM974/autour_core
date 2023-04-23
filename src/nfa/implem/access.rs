@@ -16,14 +16,12 @@ limitations under the License.
 
 use std::collections::{HashMap, HashSet};
 use std::iter::FromIterator;
-use maplit::hashmap;
-use crate::dfa::dfa::AutDFA;
+
 use crate::nfa::nfa::AutNFA;
 use crate::traits::access::AutAccessible;
-use crate::traits::build::AutBuildable;
 use crate::traits::letter::AutLetter;
 use crate::traits::transform::AutTransformable;
-use crate::traits::translate::AutTranslatable;
+
 
 impl<Letter: AutLetter> AutAccessible for AutNFA<Letter> {
 
@@ -98,19 +96,18 @@ impl<Letter: AutLetter> AutAccessible for AutNFA<Letter> {
         let mut stack: Vec<usize> = self.finals.iter().cloned().collect();
         while let Some(next_state) = stack.pop() {
             for (orig_state,transitions) in self.transitions.iter().enumerate() {
-                for (_,target_states) in transitions {
+                for target_states in transitions.values() {
                     for target_state in target_states {
-                        if next_state == *target_state {
-                            if !set_of_coaccessible_states.contains(&orig_state) {
-                                set_of_coaccessible_states.insert(orig_state);
-                                stack.push(orig_state);
-                            }
+                        if next_state == *target_state && !set_of_coaccessible_states.contains(&orig_state) {
+                            set_of_coaccessible_states.insert(orig_state);
+                            stack.push(orig_state);
                         }
                     }
                 }
             }
         }
-        return set_of_coaccessible_states;
+        // ***
+        set_of_coaccessible_states
     }
 
     fn make_coaccessible(self) -> Self {

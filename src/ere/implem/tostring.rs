@@ -15,10 +15,10 @@ limitations under the License.
 */
 
 
-
 use crate::ere::term::TermERE;
 use crate::traits::letter::AutLetter;
 use crate::traits::repr::{AbstractLanguagePrinter, ExpBREPrintable};
+
 
 impl<Letter : AutLetter> TermERE<Letter> {
 

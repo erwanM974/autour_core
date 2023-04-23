@@ -14,13 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-use std::collections::{BTreeSet, HashSet, VecDeque};
-use std::ops::{Add, AddAssign, Mul};
-use crate::bre::term::TermBRE;
+use std::collections::HashSet;
 
+use crate::bre::term::TermBRE;
 use crate::traits::letter::AutLetter;
-use crate::traits::build::AutBuildable;
 use crate::traits::error::AutError;
+
 
 #[derive(Debug, Clone)]
 pub struct ExpBRE<Letter: AutLetter> {

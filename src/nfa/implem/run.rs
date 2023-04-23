@@ -51,7 +51,8 @@ impl<Letter: AutLetter> AutRunnable<Letter> for AutNFA<Letter> {
         }
         // ***
         let verdict = current_states.iter().any(|x| self.finals.contains(x));
-        return Ok(verdict);
+        // ***
+        Ok(verdict)
     }
 
     fn run_transition(&self,
@@ -74,6 +75,7 @@ impl<Letter: AutLetter> AutRunnable<Letter> for AutNFA<Letter> {
                 }
             }
         }
-        return Ok(next_states);
+        // ***
+        Ok(next_states)
     }
 }

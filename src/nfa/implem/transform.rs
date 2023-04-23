@@ -15,16 +15,13 @@ limitations under the License.
 */
 
 use std::collections::{HashMap, HashSet};
-use std::iter::FromIterator;
 use maplit::hashmap;
-use crate::dfa::dfa::AutDFA;
+
 use crate::nfa::nfa::AutNFA;
 use crate::traits::transform::AutTransformable;
 use crate::traits::build::AutBuildable;
 use crate::traits::letter::AutLetter;
 use crate::traits::translate::AutTranslatable;
-
-
 
 
 impl<Letter: AutLetter> AutTransformable<Letter> for AutNFA<Letter> {

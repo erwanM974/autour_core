@@ -16,6 +16,7 @@ limitations under the License.
 
 use std::collections::{HashMap, HashSet};
 use maplit::{hashset,hashmap};
+
 use crate::bre::bre::ExpBRE;
 use crate::bre::term::TermBRE;
 
@@ -46,17 +47,13 @@ impl<Letter: AutLetter> AutGNFA<Letter> {
             return Err(AutError::Other("cannot rip accept state from GNFA".to_string()));
         }
         // ***
-        let mut new_transitions : HashMap<(usize,usize), TermBRE<Letter>> = hashmap!{};
-        // ***
         let mut incoming : HashSet<(usize,TermBRE<Letter>)> = hashset!{};
         let mut outgoing : HashSet<(usize,TermBRE<Letter>)> = hashset!{};
         let mut on_self : Option<TermBRE<Letter>> = None;
         for ((orig,targ),term) in &self.transitions {
             if orig == targ {
-                if *orig == to_rip_id {
-                    if !term.is_empty() {
-                        on_self = Some(term.clone());
-                    }
+                if *orig == to_rip_id && !term.is_empty() {
+                    on_self = Some(term.clone());
                 }
             } else {
                 if *targ == to_rip_id {

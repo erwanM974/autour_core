@@ -15,7 +15,6 @@ limitations under the License.
 */
 
 use std::collections::HashSet;
-use maplit::hashset;
 
 use crate::traits::letter::AutLetter;
 use crate::traits::run::AutRunnable;

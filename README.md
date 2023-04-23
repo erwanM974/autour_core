@@ -68,7 +68,7 @@ Then, from left to right:
 - we hide letter 'b' in it
 - we substitute letter 'b' by letter 'c' in it
 
-<img src="./README_images/hide_and_sub/hude.svg" alt="hide">
+<img src="./README_images/hide_and_sub/hide.svg" alt="hide">
 
 ### Other features
 

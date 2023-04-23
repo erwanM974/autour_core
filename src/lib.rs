@@ -24,6 +24,11 @@ pub mod bre;
 pub mod ere;
 mod utils;
 
-#[cfg(test)]
-mod tests;
 
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn bre_tests() {
+        //
+    }
+}

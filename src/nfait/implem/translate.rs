@@ -14,8 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-use std::collections::{BTreeSet, HashMap, HashSet, VecDeque};
-use maplit::{btreeset, hashmap, hashset};
+use std::collections::{BTreeSet, HashMap, VecDeque};
+use maplit::{hashmap, hashset};
+
 use crate::bre::bre::ExpBRE;
 use crate::bre::term::TermBRE;
 use crate::dfa::dfa::AutDFA;
@@ -77,17 +78,13 @@ impl<Letter : AutLetter> AutTranslatable<Letter> for AutNFAIT<Letter> {
         AutDFA::from_raw(self.alphabet.clone(),0,new_dfa_finals,new_dfa_transitions).unwrap()
     }
 
-    fn to_nfait(&self) -> AutNFAIT<Letter> {
-        self.clone()
-    }
-
     fn to_nfa(&self) -> AutNFA<Letter> {
         // TODO: maybe do it directly instead of through DFA
         self.to_dfa().to_nfa()
     }
 
-    fn to_bre(&self) -> ExpBRE<Letter> {
-        self.to_nfa().to_bre()
+    fn to_nfait(&self) -> AutNFAIT<Letter> {
+        self.clone()
     }
 
     fn to_gnfa(&self) -> AutGNFA<Letter> {
@@ -114,7 +111,7 @@ impl<Letter : AutLetter> AutTranslatable<Letter> for AutNFAIT<Letter> {
         }
         for (origin,targets) in self.epsilon_trans.iter().enumerate() {
             for target in targets {
-                if let Some(mut got) = raw_transitions.get_mut(&(origin,*target)) {
+                if let Some(got) = raw_transitions.get_mut(&(origin,*target)) {
                     *got = got.clone().unite(TermBRE::Epsilon);
                 } else {
                     raw_transitions.insert((origin,*target),TermBRE::Epsilon );
@@ -126,6 +123,10 @@ impl<Letter : AutLetter> AutTranslatable<Letter> for AutNFAIT<Letter> {
                           start_state,
                           accept_state,
                           raw_transitions).unwrap()
+    }
+
+    fn to_bre(&self) -> ExpBRE<Letter> {
+        self.to_nfa().to_bre()
     }
 
 }
