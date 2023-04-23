@@ -15,10 +15,8 @@ limitations under the License.
 */
 
 
-use std::collections::HashSet;
-
-
 use crate::traits::letter::AutLetter;
+
 
 pub trait AutTransformable<Letter: AutLetter> {
 

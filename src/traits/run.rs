@@ -14,8 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-use std::fmt;
+
 use std::collections::HashSet;
+
 use crate::traits::error::AutError;
 use crate::traits::letter::AutLetter;
 
