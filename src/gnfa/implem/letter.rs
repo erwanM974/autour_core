@@ -28,7 +28,7 @@ impl<Letter: AutLetter> AutAlphabetSubstitutable<Letter> for AutGNFA<Letter> {
 
     fn substitute_alphabet(self,
                            new_alphabet: HashSet<Letter>,
-                           substitution: &dyn Fn(Letter) -> Letter) -> Result<Self, AutError<Letter>> {
+                           substitution: &dyn Fn(&Letter) -> Letter) -> Result<Self, AutError<Letter>> {
         let mut new_transitions : HashMap<(usize,usize), TermBRE<Letter>> = hashmap!{};
         for ((orig,targ),term) in self.transitions {
             match term.substitute_letters_within_alphabet(substitution) {
@@ -48,15 +48,15 @@ impl<Letter: AutLetter> AutAlphabetSubstitutable<Letter> for AutGNFA<Letter> {
     }
 
     fn substitute_letters_within_alphabet(self,
-                                          substitution : &dyn Fn(Letter) -> Letter) -> Result<Self,AutError<Letter>> {
+                                          substitution : &dyn Fn(&Letter) -> Letter) -> Result<Self,AutError<Letter>> {
         let alphabet = self.alphabet.clone();
         self.substitute_alphabet(alphabet, substitution)
     }
 
-    fn hide_letters(self, should_hide: &dyn Fn(Letter) -> bool) -> Self {
+    fn hide_letters(self,hide_alphabet : bool, should_hide: &dyn Fn(&Letter) -> bool) -> Self {
         let mut new_transitions : HashMap<(usize,usize), TermBRE<Letter>> = hashmap!{};
         for ((orig,targ),term) in self.transitions {
-            new_transitions.insert((orig,targ),term.hide_letters(should_hide));
+            new_transitions.insert((orig,targ),term.hide_letters(hide_alphabet,should_hide));
         }
         AutGNFA::from_raw(self.alphabet,
                           self.states_num,

@@ -27,7 +27,7 @@ impl<Letter: AutLetter> AutAlphabetSubstitutable<Letter> for AutDFA<Letter> {
 
     fn substitute_alphabet(self,
                            new_alphabet: HashSet<Letter>,
-                           substitution: &dyn Fn(Letter) -> Letter) -> Result<Self,AutError<Letter>> {
+                           substitution: &dyn Fn(&Letter) -> Letter) -> Result<Self,AutError<Letter>> {
         match self.to_nfa().substitute_alphabet(new_alphabet, substitution) {
             Err(e) => {Err(e)},
             Ok(as_nfa) => {Ok(as_nfa.to_dfa())}
@@ -35,14 +35,14 @@ impl<Letter: AutLetter> AutAlphabetSubstitutable<Letter> for AutDFA<Letter> {
     }
 
     fn substitute_letters_within_alphabet(self,
-                                          substitution: &dyn Fn(Letter) -> Letter) -> Result<Self,AutError<Letter>> {
+                                          substitution: &dyn Fn(&Letter) -> Letter) -> Result<Self,AutError<Letter>> {
         match self.to_nfa().substitute_letters_within_alphabet(substitution) {
             Err(e) => {Err(e)},
             Ok(as_nfa) => {Ok(as_nfa.to_dfa())}
         }
     }
 
-    fn hide_letters(self, should_hide: &dyn Fn(Letter) -> bool) -> Self {
-        self.to_nfait().hide_letters(should_hide).to_dfa()
+    fn hide_letters(self, hide_alphabet : bool, should_hide: &dyn Fn(&Letter) -> bool) -> Self {
+        self.to_nfait().hide_letters(hide_alphabet,should_hide).to_dfa()
     }
 }

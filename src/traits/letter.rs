@@ -23,18 +23,20 @@ use crate::traits::error::AutError;
 
 pub trait AutLetter : Eq + Hash + Copy + Clone + Debug + Ord {}
 
+impl<T : Eq + Hash + Copy + Clone + Debug + Ord> AutLetter for T {}
 
 pub trait AutAlphabetSubstitutable <Letter: AutLetter>  : Sized {
 
     fn substitute_alphabet(self,
                            new_alphabet : HashSet<Letter>,
-                           substitution : &dyn Fn(Letter) -> Letter) -> Result<Self,AutError<Letter>>;
+                           substitution : &dyn Fn(&Letter) -> Letter) -> Result<Self,AutError<Letter>>;
 
     fn substitute_letters_within_alphabet(self,
-                                          substitution : &dyn Fn(Letter) -> Letter) -> Result<Self,AutError<Letter>>;
+                                          substitution : &dyn Fn(&Letter) -> Letter) -> Result<Self,AutError<Letter>>;
 
     fn hide_letters(self,
-                    should_hide : &dyn Fn(Letter) -> bool) -> Self;
+                    hide_alphabet : bool,
+                    should_hide : &dyn Fn(&Letter) -> bool) -> Self;
 
 }
 

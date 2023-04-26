@@ -1,6 +1,6 @@
 [package]
 name = "autour_core"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Erwan Mahe"]
 edition = "2021"
 
@@ -20,3 +20,4 @@ maplit = "1.0.2"
 strum = "0.24.1"                                # for IntoStaticStr
 strum_macros = "0.24.3"                         # ...
 graphviz_dot_builder = "0.1.2"                  # for drawing graphs
+num = "0.4.0"

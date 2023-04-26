@@ -28,12 +28,12 @@ impl<Letter: AutLetter> AutAlphabetSubstitutable<Letter> for AutNFA<Letter> {
 
     fn substitute_alphabet(self,
                            new_alphabet: HashSet<Letter>,
-                           substitution: &dyn Fn(Letter) -> Letter) -> Result<Self,AutError<Letter>> {
+                           substitution: &dyn Fn(&Letter) -> Letter) -> Result<Self,AutError<Letter>> {
         let mut new_transitions = vec![];
         for transition in self.transitions {
             let mut new_transition : HashMap<Letter, HashSet<usize>> = hashmap!{};
             for (letter, targets) in transition {
-                let substituted_letter : Letter = substitution(letter);
+                let substituted_letter : Letter = substitution(&letter);
                 // checking is the substituted_letter is in the new alphabet is done later when building the new NFA
                 if let Some(tars) = new_transition.get_mut(&substituted_letter) {
                     tars.extend(targets);
@@ -47,12 +47,12 @@ impl<Letter: AutLetter> AutAlphabetSubstitutable<Letter> for AutNFA<Letter> {
     }
 
     fn substitute_letters_within_alphabet(self,
-                                          substitution: &dyn Fn(Letter) -> Letter) -> Result<Self,AutError<Letter>> {
+                                          substitution: &dyn Fn(&Letter) -> Letter) -> Result<Self,AutError<Letter>> {
         let mut new_transitions = vec![];
         for transition in self.transitions {
             let mut new_transition : HashMap<Letter, HashSet<usize>> = hashmap!{};
             for (letter, targets) in transition {
-                let substituted_letter : Letter = substitution(letter);
+                let substituted_letter : Letter = substitution(&letter);
                 // checking is the substituted_letter is in the alphabet is done later when building the new NFA
                 if let Some(tars) = new_transition.get_mut(&substituted_letter) {
                     tars.extend(targets);
@@ -65,7 +65,7 @@ impl<Letter: AutLetter> AutAlphabetSubstitutable<Letter> for AutNFA<Letter> {
         AutNFA::from_raw(self.alphabet,self.initials,self.finals,new_transitions)
     }
 
-    fn hide_letters(self, should_hide: &dyn Fn(Letter) -> bool) -> Self {
-        self.to_nfait().hide_letters(should_hide).to_nfa()
+    fn hide_letters(self, hide_alphabet : bool, should_hide: &dyn Fn(&Letter) -> bool) -> Self {
+        self.to_nfait().hide_letters(hide_alphabet,should_hide).to_nfa()
     }
 }

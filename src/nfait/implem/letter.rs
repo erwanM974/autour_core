@@ -26,12 +26,12 @@ impl<Letter: AutLetter> AutAlphabetSubstitutable<Letter> for AutNFAIT<Letter> {
 
     fn substitute_alphabet(self,
                            new_alphabet: HashSet<Letter>,
-                           substitution: &dyn Fn(Letter) -> Letter) -> Result<Self, AutError<Letter>> {
+                           substitution: &dyn Fn(&Letter) -> Letter) -> Result<Self, AutError<Letter>> {
         let mut new_transitions = vec![];
         for transition in self.transitions {
             let mut new_transition : HashMap<Letter, HashSet<usize>> = hashmap!{};
             for (letter, targets) in transition {
-                let substituted_letter : Letter = substitution(letter);
+                let substituted_letter : Letter = substitution(&letter);
                 if let Some(tars) = new_transition.get_mut(&substituted_letter) {
                     tars.extend(targets);
                 } else {
@@ -44,18 +44,18 @@ impl<Letter: AutLetter> AutAlphabetSubstitutable<Letter> for AutNFAIT<Letter> {
     }
 
     fn substitute_letters_within_alphabet(self,
-                                          substitution : &dyn Fn(Letter) -> Letter) -> Result<Self,AutError<Letter>> {
+                                          substitution : &dyn Fn(&Letter) -> Letter) -> Result<Self,AutError<Letter>> {
         let alphabet = self.alphabet.clone();
         self.substitute_alphabet(alphabet, substitution)
     }
 
-    fn hide_letters(self, should_hide: &dyn Fn(Letter) -> bool) -> Self {
+    fn hide_letters(self, hide_alphabet : bool, should_hide: &dyn Fn(&Letter) -> bool) -> Self {
         let mut new_transitions = vec![];
         let mut new_epsilon_trans = self.epsilon_trans;
         for (orig_id,transition) in self.transitions.into_iter().enumerate() {
             let mut new_transition = hashmap!{};
             for (letter, targets) in transition {
-                if should_hide(letter) {
+                if should_hide(&letter) {
                     new_epsilon_trans.get_mut(orig_id).unwrap().extend(targets);
                 } else {
                     new_transition.insert( letter, targets);
