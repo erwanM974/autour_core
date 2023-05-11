@@ -35,7 +35,8 @@ impl<Letter, Printer> AutGraphvizDrawable<Letter, Printer> for AutNFAIT<Letter> 
 
     fn to_dot(&self,
               draw_accessibility : bool,
-              active_states : &HashSet<usize>) -> GraphVizDiGraph {
+              active_states : &HashSet<usize>,
+              printer : &Printer) -> GraphVizDiGraph {
         let accessible_states = self.get_all_accessible_states();
         let coaccessible_states = self.get_all_coaccessible_states();
         // ***
@@ -84,7 +85,7 @@ impl<Letter, Printer> AutGraphvizDrawable<Letter, Printer> for AutNFAIT<Letter> 
             for (letter, target_states) in transitions_map {
                 for targ_stid in target_states {
                     let targ_name = format!("S{}",targ_stid);
-                    let edge_style = vec![GraphvizEdgeStyleItem::Label(Printer::get_letter_string_repr(letter))];
+                    let edge_style = vec![GraphvizEdgeStyleItem::Label(printer.get_letter_string_repr(letter))];
                     let edge = GraphVizEdge::new(orig_name.clone(),
                                                  None,
                                                  targ_name,
@@ -100,7 +101,7 @@ impl<Letter, Printer> AutGraphvizDrawable<Letter, Printer> for AutNFAIT<Letter> 
             for targ_stid in targets {
                 let targ_name = format!("S{}",targ_stid);
                 let edge_style = vec![
-                    GraphvizEdgeStyleItem::Label(Printer::get_epsilon_symbol(true).to_string()),
+                    GraphvizEdgeStyleItem::Label(printer.get_epsilon_symbol(true).to_string()),
                     GraphvizEdgeStyleItem::LineStyle(GvEdgeLineStyle::Dashed)
                 ];
                 let edge = GraphVizEdge::new(orig_name.clone(),

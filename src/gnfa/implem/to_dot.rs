@@ -23,7 +23,6 @@ use graphviz_dot_builder::item::node::node::GraphVizNode;
 use graphviz_dot_builder::item::node::style::{GraphvizNodeStyleItem, GvNodeShape};
 use graphviz_dot_builder::traits::DotBuildable;
 
-use crate::bre::term::TermBRE;
 use crate::gnfa::gnfa::AutGNFA;
 use crate::traits::access::AutAccessible;
 use crate::traits::letter::AutLetter;
@@ -37,7 +36,8 @@ impl<Letter, Printer> AutGraphvizDrawable<Letter, Printer> for AutGNFA<Letter> w
 
     fn to_dot(&self,
               draw_accessibility : bool,
-              active_states : &HashSet<usize>) -> GraphVizDiGraph {
+              active_states : &HashSet<usize>,
+              printer : &Printer) -> GraphVizDiGraph {
         let accessible_states = self.get_all_accessible_states();
         let coaccessible_states = self.get_all_coaccessible_states();
         // ***
@@ -87,7 +87,7 @@ impl<Letter, Printer> AutGraphvizDrawable<Letter, Printer> for AutGNFA<Letter> w
             if !term.is_empty() {
                 let orig_name = format!("S{}",orig_stid);
                 let targ_name = format!("S{}",targ_stid);
-                let term_as_str = <TermBRE<Letter> as ExpBREPrintable<Letter, Printer>>::regexp_to_string(term, true);
+                let term_as_str = term.regexp_to_string( true, printer);
                 let edge_style = vec![
                     GraphvizEdgeStyleItem::Label(term_as_str)
                 ];

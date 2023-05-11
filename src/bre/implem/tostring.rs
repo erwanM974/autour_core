@@ -26,8 +26,8 @@ impl<Letter, Printer> ExpBREPrintable<Letter, Printer> for ExpBRE<Letter> where
     Letter : AutLetter,
     Printer : AbstractLanguagePrinter<Letter> {
 
-    fn regexp_to_string(&self, use_html: bool) -> String {
-        <TermBRE<Letter> as ExpBREPrintable<Letter, Printer>>::regexp_to_string(&self.term, use_html)
+    fn regexp_to_string(&self, use_html: bool, printer : &Printer) -> String {
+        self.term.regexp_to_string(use_html, printer)
     }
 
 }
@@ -35,16 +35,16 @@ impl<Letter, Printer> ExpBREPrintable<Letter, Printer> for ExpBRE<Letter> where
 
 impl<Letter : AutLetter> TermBRE<Letter> {
 
-    pub fn is_string_repr_atomic<Printer : AbstractLanguagePrinter<Letter>>(&self) -> bool {
+    pub fn is_string_repr_atomic(&self, printer : &dyn AbstractLanguagePrinter<Letter>) -> bool {
         match self {
             TermBRE::Empty => {true},
             TermBRE::Epsilon => {true},
-            TermBRE::Literal(letter) => {Printer::is_letter_string_repr_atomic(letter)},
+            TermBRE::Literal(letter) => {printer.is_letter_string_repr_atomic(letter)},
             TermBRE::Concat(sub_terms) => {
                 match sub_terms.len() {
                     0 => { true },
                     1 => {
-                        sub_terms.get(0).unwrap().is_string_repr_atomic::<Printer>()
+                        sub_terms.get(0).unwrap().is_string_repr_atomic(printer)
                     },
                     _ => { false }
                 }
@@ -53,7 +53,7 @@ impl<Letter : AutLetter> TermBRE<Letter> {
                 match sub_terms.len() {
                     0 => { true },
                     1 => {
-                        sub_terms.iter().next().unwrap().is_string_repr_atomic::<Printer>()
+                        sub_terms.iter().next().unwrap().is_string_repr_atomic(printer)
                     },
                     _ => { false }
                 }
@@ -68,19 +68,18 @@ impl<Letter, Printer> ExpBREPrintable<Letter, Printer> for TermBRE<Letter> where
     Letter : AutLetter,
     Printer : AbstractLanguagePrinter<Letter> {
 
-    fn regexp_to_string(&self, use_html: bool) -> String {
+    fn regexp_to_string(&self, use_html: bool, printer : &Printer) -> String {
         match self {
-            TermBRE::Empty => {Printer::get_empty_symbol(use_html).to_string()},
-            TermBRE::Epsilon => {Printer::get_epsilon_symbol(use_html).to_string()},
-            TermBRE::Literal(letter) => {Printer::get_letter_string_repr(letter)},
+            TermBRE::Empty => {printer.get_empty_symbol(use_html).to_string()},
+            TermBRE::Epsilon => {printer.get_epsilon_symbol(use_html).to_string()},
+            TermBRE::Literal(letter) => {printer.get_letter_string_repr(letter)},
             TermBRE::Concat(sub_terms) => {
                 let sub_strs_atoms : Vec<(String,bool)> = sub_terms.iter()
                     .map(|t|
-                        (<TermBRE<Letter> as ExpBREPrintable<Letter, Printer>>::regexp_to_string(t, use_html),
-                         t.is_string_repr_atomic::<Printer>()))
+                             (t.regexp_to_string(use_html,printer), t.is_string_repr_atomic(printer)))
                         .collect();
                 let sub_strs : Vec<String> =
-                if !Printer::get_concatenation_separator(false).is_empty() {
+                if !printer.get_concatenation_separator(false).is_empty() {
                     sub_strs_atoms.into_iter()
                         .map(|(repr,is_atomic)|
                             if is_atomic {
@@ -95,16 +94,15 @@ impl<Letter, Printer> ExpBREPrintable<Letter, Printer> for TermBRE<Letter> where
                             repr
                         ).collect()
                 };
-                sub_strs.join(Printer::get_concatenation_separator(use_html))
+                sub_strs.join(printer.get_concatenation_separator(use_html))
             },
             TermBRE::Union(sub_terms) => {
                 let sub_strs_atoms : Vec<(String,bool)> = sub_terms.iter()
                     .map(|t|
-                        (<TermBRE<Letter> as ExpBREPrintable<Letter, Printer>>::regexp_to_string(t, use_html),
-                         t.is_string_repr_atomic::<Printer>()))
+                        (t.regexp_to_string(use_html,printer), t.is_string_repr_atomic(printer)))
                     .collect();
                 let sub_strs : Vec<String> =
-                    if !Printer::get_alternation_separator(false).is_empty() {
+                    if !printer.get_alternation_separator(false).is_empty() {
                         sub_strs_atoms.into_iter()
                             .map(|(repr,is_atomic)|
                                 if is_atomic {
@@ -119,13 +117,13 @@ impl<Letter, Printer> ExpBREPrintable<Letter, Printer> for TermBRE<Letter> where
                                 repr
                             ).collect()
                     };
-                sub_strs.join(Printer::get_alternation_separator(use_html))
+                sub_strs.join(printer.get_alternation_separator(use_html))
             },
             TermBRE::Kleene(sub_term) =>{
-                if sub_term.is_string_repr_atomic::<Printer>() {
-                    format!("{:}*", <TermBRE<Letter> as ExpBREPrintable<Letter, Printer>>::regexp_to_string(sub_term, use_html))
+                if sub_term.is_string_repr_atomic(printer) {
+                    format!("{:}*", sub_term.regexp_to_string(use_html,printer))
                 } else {
-                    format!("({:})*", <TermBRE<Letter> as ExpBREPrintable<Letter, Printer>>::regexp_to_string(sub_term, use_html))
+                    format!("({:})*", sub_term.regexp_to_string(use_html,printer))
                 }
             }
         }

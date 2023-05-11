@@ -15,17 +15,19 @@ limitations under the License.
 */
 
 
-pub mod traits;
-pub mod dfa;
-pub mod nfa;
-pub mod nfait;
-pub mod gnfa;
-pub mod bre;
-//pub mod ere;
-mod utils;
-pub mod printers;
 
+use crate::tests::gnfa::ex1::get_gnfa1;
+use crate::traits::repr::AutGraphvizDrawable;
+use crate::traits::translate::AutTranslatable;
 
-
-#[cfg(test)]
-mod tests;
+#[test]
+fn gnfa_tests() {
+    let examples = vec![get_gnfa1()];
+    for gnfa1 in &examples {
+        println!("test");
+        gnfa1.test_translation();
+        for gnfa2 in &examples {
+            //gnfa1.test_with_other(gnfa2);
+        }
+    }
+}

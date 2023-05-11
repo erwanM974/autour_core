@@ -14,18 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-
-pub mod traits;
-pub mod dfa;
-pub mod nfa;
-pub mod nfait;
-pub mod gnfa;
-pub mod bre;
-//pub mod ere;
-mod utils;
-pub mod printers;
-
-
-
-#[cfg(test)]
-mod tests;
+pub mod dfatest;
+mod ex1_abc;
+mod minimize;

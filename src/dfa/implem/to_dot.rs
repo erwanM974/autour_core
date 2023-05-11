@@ -31,8 +31,9 @@ impl<Letter, Printer> AutGraphvizDrawable<Letter, Printer> for AutDFA<Letter> wh
 
     fn to_dot(&self,
               draw_accessibility : bool,
-              active_states : &HashSet<usize>) -> GraphVizDiGraph {
-        <AutNFA<Letter> as AutGraphvizDrawable<Letter, Printer>>::to_dot(&self.to_nfa(), draw_accessibility, active_states)
+              active_states : &HashSet<usize>,
+              printer : &Printer) -> GraphVizDiGraph {
+        <AutNFA<Letter> as AutGraphvizDrawable<Letter, Printer>>::to_dot(&self.to_nfa(), draw_accessibility, active_states, printer)
     }
 
 }

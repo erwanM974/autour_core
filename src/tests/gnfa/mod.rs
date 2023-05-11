@@ -15,17 +15,7 @@ limitations under the License.
 */
 
 
-pub mod traits;
-pub mod dfa;
-pub mod nfa;
-pub mod nfait;
-pub mod gnfa;
-pub mod bre;
-//pub mod ere;
-mod utils;
-pub mod printers;
+mod ex1;
+pub mod gnfatest;
 
-
-
-#[cfg(test)]
-mod tests;
+//pub mod hide;

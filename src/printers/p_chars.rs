@@ -25,23 +25,23 @@ pub struct CharAsLetterPrinter {}
 
 impl AbstractLanguagePrinter<char> for CharAsLetterPrinter {
 
-    fn is_letter_string_repr_atomic(_letter: &char) -> bool {
+    fn is_letter_string_repr_atomic(&self, _letter: &char) -> bool {
         true
     }
 
-    fn get_letter_string_repr(letter: &char) -> String {
+    fn get_letter_string_repr(&self, letter: &char) -> String {
         letter.to_string()
     }
 
-    fn get_concatenation_separator(_use_html: bool) -> &'static str {
+    fn get_concatenation_separator(&self, _use_html: bool) -> &'static str {
         SYNTAX_CONCATENATION_EMPTY
     }
 
-    fn get_alternation_separator(_use_html: bool) -> &'static str {
+    fn get_alternation_separator(&self, _use_html: bool) -> &'static str {
         SYNTAX_ALTERNATION
     }
 
-    fn get_intersection_separator(use_html: bool) -> &'static str {
+    fn get_intersection_separator(&self, use_html: bool) -> &'static str {
         if use_html {
             SYNTAX_INTERSECTION_HTML
         } else {
@@ -49,11 +49,11 @@ impl AbstractLanguagePrinter<char> for CharAsLetterPrinter {
         }
     }
 
-    fn get_wildcard_symbol(_use_html: bool) -> &'static str {
+    fn get_wildcard_symbol(&self, _use_html: bool) -> &'static str {
         SYNTAX_WILDCARD_DOT
     }
 
-    fn get_negate_symbol(use_html: bool) -> &'static str {
+    fn get_negate_symbol(&self, use_html: bool) -> &'static str {
         if use_html {
             SYNTAX_NEGATION_HTML
         } else {
@@ -61,7 +61,7 @@ impl AbstractLanguagePrinter<char> for CharAsLetterPrinter {
         }
     }
 
-    fn get_empty_symbol(use_html: bool) -> &'static str {
+    fn get_empty_symbol(&self, use_html: bool) -> &'static str {
         if use_html {
             SYNTAX_EMPTY_HTML
         } else {
@@ -69,7 +69,7 @@ impl AbstractLanguagePrinter<char> for CharAsLetterPrinter {
         }
     }
 
-    fn get_epsilon_symbol(use_html: bool) -> &'static str {
+    fn get_epsilon_symbol(&self, use_html: bool) -> &'static str {
         if use_html {
             SYNTAX_EPSILON_HTML
         } else {

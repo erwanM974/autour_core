@@ -24,23 +24,23 @@ use crate::traits::letter::AutLetter;
 
 pub trait AbstractLanguagePrinter<Letter : AutLetter> {
 
-    fn is_letter_string_repr_atomic(letter : &Letter) -> bool;
+    fn is_letter_string_repr_atomic(&self, letter : &Letter) -> bool;
 
-    fn get_letter_string_repr(letter : &Letter) -> String;
+    fn get_letter_string_repr(&self, letter : &Letter) -> String;
 
-    fn get_concatenation_separator(use_html : bool) -> &'static str;
+    fn get_concatenation_separator(&self, use_html : bool) -> &'static str;
 
-    fn get_alternation_separator(use_html : bool) -> &'static str;
+    fn get_alternation_separator(&self, use_html : bool) -> &'static str;
 
-    fn get_intersection_separator(use_html : bool) -> &'static str;
+    fn get_intersection_separator(&self, use_html : bool) -> &'static str;
 
-    fn get_wildcard_symbol(use_html : bool) -> &'static str;
+    fn get_wildcard_symbol(&self, use_html : bool) -> &'static str;
 
-    fn get_negate_symbol(use_html : bool) -> &'static str;
+    fn get_negate_symbol(&self, use_html : bool) -> &'static str;
 
-    fn get_empty_symbol(use_html : bool) -> &'static str;
+    fn get_empty_symbol(&self, use_html : bool) -> &'static str;
 
-    fn get_epsilon_symbol(use_html : bool) -> &'static str;
+    fn get_epsilon_symbol(&self, use_html : bool) -> &'static str;
 
 }
 
@@ -50,7 +50,7 @@ pub trait ExpBREPrintable<Letter, Printer> where
     Letter : AutLetter,
     Printer : AbstractLanguagePrinter<Letter> {
 
-    fn regexp_to_string(&self, use_html : bool) -> String;
+    fn regexp_to_string(&self, use_html : bool, printer : &Printer) -> String;
 
 }
 
@@ -72,6 +72,7 @@ pub trait AutGraphvizDrawable<Letter, Printer> where
 
     fn to_dot(&self,
               draw_accessibility : bool,
-              active_states : &HashSet<usize>) -> GraphVizDiGraph;
+              active_states : &HashSet<usize>,
+              printer : &Printer) -> GraphVizDiGraph;
 
 }

@@ -15,17 +15,15 @@ limitations under the License.
 */
 
 
-pub mod traits;
-pub mod dfa;
-pub mod nfa;
-pub mod nfait;
-pub mod gnfa;
-pub mod bre;
-//pub mod ere;
-mod utils;
-pub mod printers;
+use crate::tests::dfa::ex1_abc::get_dfa1;
 
-
-
-#[cfg(test)]
-mod tests;
+#[test]
+fn dfa_tests() {
+    let examples = vec![get_dfa1()];
+    for dfa1 in &examples {
+        dfa1.test();
+        for dfa2 in &examples {
+            dfa1.test_with_other(dfa2);
+        }
+    }
+}
