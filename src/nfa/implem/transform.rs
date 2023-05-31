@@ -16,11 +16,13 @@ limitations under the License.
 
 use std::collections::{HashMap, HashSet};
 use maplit::hashmap;
+use crate::nfa::algos::kameda_weiner::algo::kameda_weiner_algorithm;
 
 use crate::nfa::nfa::AutNFA;
 use crate::traits::transform::AutTransformable;
 use crate::traits::build::AutBuildable;
 use crate::traits::letter::AutLetter;
+use crate::traits::repr::AbstractLanguagePrinter;
 use crate::traits::translate::AutTranslatable;
 
 
@@ -143,7 +145,7 @@ impl<Letter: AutLetter> AutTransformable<Letter> for AutNFA<Letter> {
     }
 
     fn minimize(self) -> Self {
-        self.to_dfa().minimize().to_nfa()
+        kameda_weiner_algorithm(&self).3.nfa
     }
 
     // De Morgan

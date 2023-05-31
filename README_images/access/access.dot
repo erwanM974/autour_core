@@ -80,16 +80,6 @@ compound=true;
 	trimS3->trimS4 [label="b"];
 	trimS4->trimS2 [label="a"];
 }
-	subgraph cluster_mini {
-	miniS0 [shape=circle,label="S0",color=green];
-	miniI0 [shape=point];
-	miniS1 [shape=doublecircle,label="S1",color=green];
-	miniI0->miniS0;
-	miniS0->miniS0 [label="a"];
-	miniS0->miniS1 [label="b"];
-	miniS1->miniS1 [label="a"];
-}
-	initS5->miniI0 [label="minimize",ltail=cluster_init,lhead=cluster_mini];
 	initS5->accI0 [label="make accessible",ltail=cluster_init,lhead=cluster_acc];
 	initS5->coaccI0 [label="make coaccessible",ltail=cluster_init,lhead=cluster_coacc];
 	initS5->trimI0 [label="trim",ltail=cluster_init,lhead=cluster_trim];

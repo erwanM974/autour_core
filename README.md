@@ -33,7 +33,7 @@ In the example below we translate a GNFA into (from left to right) a DFA, a NFAI
 
 <img src="./README_images/translation/gnfa1_bridge.svg" alt="translation">
 
-## (Co)-Accessibility and minimization
+### (Co)-Accessibility
 
 Various algorithms allow:
 - determining if an automaton is accessible
@@ -42,7 +42,6 @@ Various algorithms allow:
 - making it coaccessible
 - determining if an automaton is coaccessible
 - making it coaccessible
-- minimizing an automaton
 
 In the example below we have an initial DFA represented at the top of the image.
 - The nodes in green are both accessible and coaccessible.
@@ -54,9 +53,31 @@ We then transform this initial DFA (from lef to right):
 - by making it accessible
 - by making it coaccessible
 - by trimming it i.e. making it both accessible and coaccessible
-- by minimizing it
 
-<img src="./README_images/access_and_mini/minimize.svg" alt="transfos"> 
+<img src="./README_images/access/access.svg" alt="access"> 
+
+### Automaton minimization
+
+#### DFA 
+
+DFA minimization is implemented via Brzozowski's algorithm, taking advantage of translations between DFA and NFA.
+
+Below is an example, using the same initial DFA as in the previous image.
+
+<img src="./README_images/minimize/dfa.svg" alt="dfa minimization">
+
+#### NFA
+
+NFA minimization is implemented via the Kameda-Weiner algorithm. Below are represented two examples detailing the process.
+
+A first example:
+
+<img src="./README_images/minimize/kw.svg" alt="nfa minimization example">
+
+And a second which is a DFA accepting the reverse language w.r.t. the first example 
+(you can notice the symmetry of matrices between the two examples modulo rows and columns positions substitution):
+
+<img src="./README_images/minimize/kw_reversed.svg" alt="nfa minimization reversed example">
 
 
 ### Alphabet hiding and substitution
