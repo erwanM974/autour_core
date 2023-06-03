@@ -58,10 +58,13 @@ pub fn kameda_weiner_algorithm<Letter : AutLetter>(nfa : &AutNFA<Letter>)
     let mut num_states_criterion = nfa.transitions.len() + 1;
     let mut candidate : Option<KwLegitCandidate<Letter>> = None;
     // ***
-    let mut seen : BTreeSet < BTreeSet<(BTreeSet<usize>,BTreeSet<usize>)> > = btreeset!{btreeset!{}};
+    let mut seen : BTreeSet < BTreeSet<(BTreeSet<usize>,BTreeSet<usize>)> > = btreeset!{};
     let mut queue: Vec< BTreeSet<(BTreeSet<usize>,BTreeSet<usize>)> > = vec![btreeset!{}];
     while let Some(next_cover_candidate) = queue.pop() {
         seen.insert(next_cover_candidate.clone());
+        if next_cover_candidate.len() >= num_states_criterion {
+            continue
+        }
         if is_set_of_grids_covering_matrix(&rsm,&next_cover_candidate) {
             let rcm = replace_states_map_content_with_cover(&rsm,&next_cover_candidate);
             let rcm_as_nfa = convert_states_map_to_nfa(&rcm,&dfa,next_cover_candidate.len());
@@ -71,10 +74,10 @@ pub fn kameda_weiner_algorithm<Letter : AutLetter>(nfa : &AutNFA<Letter>)
             }
         } else {
             for grid in &all_prime_grids {
-                if next_cover_candidate.len() + 1 < num_states_criterion && !next_cover_candidate.contains(grid) {
+                if !next_cover_candidate.contains(grid) {
                     let mut new_candidate = next_cover_candidate.clone();
                     new_candidate.insert(grid.clone());
-                    if !seen.contains(&new_candidate) {
+                    if !seen.contains(&new_candidate) && !queue.contains(&new_candidate) {
                         queue.push(new_candidate);
                     }
                 }

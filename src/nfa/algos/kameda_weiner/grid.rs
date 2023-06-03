@@ -53,7 +53,7 @@ pub fn search_all_prime_grids(states_map : &KwStatesMap) -> BTreeSet<(BTreeSet<u
                 let mut rows_copy = next_rows.clone();
                 rows_copy.remove(removed_row);
                 let new = (rows_copy, next_columns.clone());
-                if (!seen.contains(&new)) && (!grids.contains(&new)) {
+                if !seen.contains(&new) && !queue.contains(&new) {
                     queue.push(new);
                 }
             }
@@ -61,7 +61,7 @@ pub fn search_all_prime_grids(states_map : &KwStatesMap) -> BTreeSet<(BTreeSet<u
                 let mut columns_copy = next_columns.clone();
                 columns_copy.remove(removed_column);
                 let new = (next_rows.clone(),columns_copy);
-                if (!seen.contains(&new)) && (!grids.contains(&new)) {
+                if !seen.contains(&new) && !queue.contains(&new) {
                     queue.push(new);
                 }
             }
