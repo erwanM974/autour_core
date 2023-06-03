@@ -26,7 +26,7 @@ use maplit::{btreeset, hashset};
 use crate::dfa::dfa::AutDFA;
 
 use crate::nfa::algos::kameda_weiner::cover::{is_set_of_grids_covering_matrix, replace_states_map_content_with_cover};
-use crate::nfa::algos::kameda_weiner::grid::search_all_prime_grids;
+use crate::nfa::algos::kameda_weiner::grid::search_maximal_prime_grids;
 use crate::nfa::algos::kameda_weiner::intersection_rule::convert_states_map_to_nfa;
 use crate::nfa::algos::kameda_weiner::states_map::KwStatesMap;
 use crate::nfa::nfa::AutNFA;
@@ -52,7 +52,7 @@ pub fn kameda_weiner_algorithm<Letter : AutLetter>(nfa : &AutNFA<Letter>)
             -> (AutDFA<Letter>,KwStatesMap,KwStatesMap,Option<KwLegitCandidate<Letter>>) {
     let (sm,dfa) = KwStatesMap::from_nfa(&nfa);
     let rsm = sm.reduce_matrix();
-    let all_prime_grids = search_all_prime_grids(&rsm);
+    let all_prime_grids = search_maximal_prime_grids(&rsm);
     // ***
     // we will search for a candidate with at worst the same number of states as the original nfa
     let mut num_states_criterion = nfa.transitions.len();
