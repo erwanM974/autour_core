@@ -19,6 +19,8 @@ use maplit::hashmap;
 
 use crate::nfait::nfait::AutNFAIT;
 use crate::traits::build::AutBuildable;
+use crate::traits::characterize::AutCharacterizable;
+use crate::traits::error::AutError;
 use crate::traits::letter::AutLetter;
 use crate::traits::transform::AutTransformable;
 use crate::traits::translate::AutTranslatable;
@@ -28,24 +30,6 @@ use crate::traits::translate::AutTranslatable;
 
 
 impl<Letter: AutLetter> AutTransformable<Letter> for AutNFAIT<Letter> {
-
-    fn is_complete(&self) -> bool {
-        if self.initials.is_empty() {
-            return false;
-        }
-        for transition_map in &self.transitions {
-            for letter in &self.alphabet {
-                if match transition_map.get(letter) {
-                    None => true,
-                    Some(letter_targets) => letter_targets.is_empty(),
-                } {
-                    return false;
-                }
-            }
-        }
-        // ***
-        true
-    }
 
     fn complete(mut self) -> Self {
         if self.is_complete() {
@@ -69,60 +53,6 @@ impl<Letter: AutLetter> AutTransformable<Letter> for AutNFAIT<Letter> {
         }
         // ***
         self
-    }
-
-    fn is_empty(&self) -> bool {
-        // by def
-        // // let set_of_accessible_states = self.get_all_accessible_states();
-        // // return set_of_accessible_states.is_disjoint(&self.finals);
-        // more efficient
-        if !self.initials.is_disjoint(&self.finals) {
-            return false; // because accepts empty word
-        }
-        // ***
-        let mut reached: HashSet<usize> = self.initials.clone().into_iter().collect();
-        let mut stack: Vec<usize> = self.initials.clone().into_iter().collect();
-        // ***
-        while let Some(accessible_state_id) = stack.pop() {
-            for target_states in self.transitions[accessible_state_id].values() {
-                for target in target_states {
-                    if self.finals.contains(target) {
-                        return false;
-                    }
-                    if !reached.contains(target) {
-                        reached.insert(*target);
-                        stack.push(*target);
-                    }
-                }
-            }
-        }
-        // ***
-        true
-    }
-
-    fn is_universal(&self) -> bool {
-        if self.initials.is_disjoint(&self.finals) {
-            return false; // because doesn't accept empty word
-        }
-        // ***
-        let mut reached: HashSet<usize> = self.initials.clone().into_iter().collect();
-        let mut stack: Vec<usize> = self.initials.clone().into_iter().collect();
-        // ***
-        while let Some(accessible_state_id) = stack.pop() {
-            for target_states in self.transitions[accessible_state_id].values() {
-                for target in target_states {
-                    if !self.finals.contains(target) {
-                        return false;
-                    }
-                    if !reached.contains(target) {
-                        reached.insert(*target);
-                        stack.push(*target);
-                    }
-                }
-            }
-        }
-        // ***
-        true
     }
 
     fn negate(self) -> Self {
@@ -152,12 +82,18 @@ impl<Letter: AutLetter> AutTransformable<Letter> for AutNFAIT<Letter> {
 
     // De Morgan
     fn intersect(self,
-                 other: Self) -> Self {
-        self.negate().unite(other.negate()).unwrap().negate()
+                 other: Self) -> Result<Self,AutError<Letter>> {
+        match self.negate().unite(other.negate()) {
+            Err(e) => {Err(e)},
+            Ok(got) => {Ok(got.negate())}
+        }
     }
 
-    fn contains(&self,
-                other: &Self) -> bool {
-        self.clone().negate().intersect(other.clone()).is_empty()
+    fn interleave(self, other: Self) -> Result<Self,AutError<Letter>> {
+        match self.to_nfa().interleave(other.to_nfa()) {
+            Err(e) => {Err(e)},
+            Ok(got) => {Ok(got.to_nfait())}
+        }
     }
+
 }

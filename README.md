@@ -26,6 +26,9 @@ Automata can be drawn using GraphViz with the
 
 In the following we use those graphical representations to introduce some of the features of the toolbox.
 
+
+
+
 ### Translations
 
 Translations between the different formalisms is possible.
@@ -56,25 +59,52 @@ We then transform this initial DFA (from lef to right):
 
 <img src="./README_images/access/access.svg" alt="access"> 
 
+
+### Building Automata
+
+Means to construct terms:
+- union
+- intersection
+- concatenation
+- repetition
+- negation
+- reversion
+- etc
+
+See some examples below :
+
+|                                                       |                                                  |                                                   |                                                      |                                                 |
+|-------------------------------------------------------|--------------------------------------------------|---------------------------------------------------|------------------------------------------------------|-------------------------------------------------|
+| DFA concatenation                                     | DFA kleene                                       | DFA reverse                                       | DFA interleave                                       | DFA unite                                       |
+| <img src="./README_images/build/dfa_concatenate.svg"> | <img src="./README_images/build/dfa_kleene.svg"> | <img src="./README_images/build/dfa_reverse.svg"> | <img src="./README_images/build/dfa_interleave.svg"> | <img src="./README_images/build/dfa_unite.svg"> |
+
+
+|                                                 |                                                     |
+|-------------------------------------------------|-----------------------------------------------------|
+| NFA unite                                       | NFA intersection                                    |
+| <img src="./README_images/build/nfa_unite.svg"> | <img src="./README_images/build/nfa_intersect.svg"> |
+
+
 ### Automaton minimization
 
 #### DFA 
 
-DFA minimization is implemented via Brzozowski's algorithm, taking advantage of translations between DFA and NFA.
+DFA minimization is implemented via Brzozowski's algorithm (reverse of the reverse).
 
-Below is an example, using the same initial DFA as in the previous image.
+Below is an example:
 
 <img src="./README_images/minimize/dfa.svg" alt="dfa minimization">
 
 #### NFA
 
-NFA minimization is implemented via the Kameda-Weiner algorithm. Below are represented two examples detailing the process.
+NFA minimization is implemented via the Kameda-Weiner algorithm.
+Below are represented two examples detailing the process.
 
 A first example:
 
 <img src="./README_images/minimize/kw.svg" alt="nfa minimization example">
 
-And a second which is a DFA accepting the reverse language w.r.t. the first example 
+And a second which is a NFA accepting the reverse language w.r.t. the first example 
 (you can notice the symmetry of matrices between the two examples modulo rows and columns positions substitution):
 
 <img src="./README_images/minimize/kw_reversed.svg" alt="nfa minimization reversed example">
@@ -93,14 +123,6 @@ Then, from left to right:
 
 ### Other features
 
-Means to construct terms:
-- union
-- intersection
-- concatenation
-- repetition
-- negation
-- reversion
-
-Others:
 - completion up to alphabet
 - running transitions and traces in DFA/NFA
+- etc

@@ -35,6 +35,7 @@ use crate::printers::p_chars::CharAsLetterPrinter;
 
 use crate::traits::access::AutAccessible;
 use crate::traits::build::AutBuildable;
+use crate::traits::characterize::AutCharacterizable;
 use crate::traits::letter::AutLetter;
 use crate::traits::repr::{AbstractLanguagePrinter, AutGraphvizDrawable, ExpBREPrintable};
 use crate::traits::run::AutRunnable;
@@ -45,7 +46,7 @@ use crate::traits::translate::AutTranslatable;
 pub trait TestAble<Letter : AutLetter>: AutRunnable<Letter>
         + AutAccessible
         + AutBuildable<Letter>
-        + AutTransformable<Letter> + Clone
+        + AutCharacterizable<Letter> + Clone
         + AutGraphvizDrawable<Letter, CharAsLetterPrinter>
         + AutTranslatable<Letter>
     where

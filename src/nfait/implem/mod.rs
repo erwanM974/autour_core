@@ -17,6 +17,7 @@ limitations under the License.
 
 mod access;
 mod build;
+mod characterize;
 mod transform;
 mod translate;
 mod to_dot;

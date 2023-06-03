@@ -18,24 +18,14 @@ use std::collections::HashMap;
 
 use crate::dfa::dfa::AutDFA;
 use crate::traits::build::AutBuildable;
+use crate::traits::characterize::AutCharacterizable;
+use crate::traits::error::AutError;
 use crate::traits::letter::AutLetter;
 use crate::traits::transform::AutTransformable;
 use crate::traits::translate::AutTranslatable;
 
 
 impl<Letter : AutLetter> AutTransformable<Letter> for AutDFA<Letter> {
-
-    fn is_complete(&self) -> bool {
-        for map in &self.transitions {
-            for letter in &self.alphabet {
-                if !map.contains_key(letter) {
-                    return false;
-                }
-            }
-        }
-        // ***
-        true
-    }
 
     fn complete(mut self) -> Self {
         if self.is_complete() {
@@ -58,14 +48,6 @@ impl<Letter : AutLetter> AutTransformable<Letter> for AutDFA<Letter> {
         self
     }
 
-    fn is_empty(&self) -> bool {
-        self.to_nfa().is_empty()
-    }
-
-    fn is_universal(&self) -> bool {
-        self.to_nfa().is_universal()
-    }
-
     fn negate(mut self) -> Self {
         self = self.complete();
         self.finals = (0..self.transitions.len())
@@ -86,13 +68,17 @@ impl<Letter : AutLetter> AutTransformable<Letter> for AutDFA<Letter> {
 
     // De Morgan
     fn intersect(self,
-                 other: Self) -> Self {
-        self.negate().unite(other.negate()).unwrap().negate()
+                 other: Self) -> Result<Self,AutError<Letter>> {
+        match self.negate().unite(other.negate()) {
+            Err(e) => {Err(e)},
+            Ok(got) => {Ok(got.negate())}
+        }
     }
 
-    fn contains(&self,
-                other: &Self) -> bool {
-        self.to_nfa().contains(&other.to_nfa())
+    fn interleave(self, other: Self) -> Result<Self,AutError<Letter>> {
+        match self.to_nfa().interleave(other.to_nfa()) {
+            Err(e) => {Err(e)},
+            Ok(got) => {Ok(got.to_dfa())}
+        }
     }
-
 }

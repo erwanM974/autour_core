@@ -18,6 +18,6 @@ mod access;
 mod build;
 mod translate;
 mod to_dot;
-mod transform;
+mod characterize;
 mod run;
 mod letter;

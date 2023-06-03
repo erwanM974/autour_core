@@ -15,22 +15,14 @@ limitations under the License.
 */
 
 
+use crate::traits::error::AutError;
 use crate::traits::letter::AutLetter;
 
 
-pub trait AutTransformable<Letter: AutLetter> {
+pub trait AutTransformable<Letter: AutLetter> : Sized {
 
     /// An automaton is *complete* if for all its *states* there are outgoing *transitions* corresponding to every *letter* of the *alphabet*
-    fn is_complete(&self) -> bool;
     fn complete(self) -> Self;
-
-    /// An automaton is said *empty* if it doesn't accept any word
-    /// e.g. there are no final states for a DFA
-    fn is_empty(&self) -> bool;
-
-    /// An automaton is said *universal* if there are no words that it doesn't accept
-    /// e.g. all states are final for a DFA
-    fn is_universal(&self) -> bool;
 
     /// Returns an automaton that accepts a word if and only if *self* doesn't accept this word
     fn negate(self) -> Self;
@@ -42,10 +34,10 @@ pub trait AutTransformable<Letter: AutLetter> {
     fn minimize(self) -> Self;
 
     /// Returns an automaton that accepts a word if and only if this word is accepted by both *self* and *other*
-    fn intersect(self, other: Self) -> Self;
+    fn intersect(self, other: Self) -> Result<Self,AutError<Letter>>;
 
-    /// 'self' contains 'other' if and only if each *word* accepted by 'self' is also accepted by 'other'
-    fn contains(&self, other : &Self) -> bool;
+    /// Returns an automaton that accepts words which are interleavings of words of *self* and *other*
+    fn interleave(self, other: Self) -> Result<Self,AutError<Letter>>;
 
 }
 

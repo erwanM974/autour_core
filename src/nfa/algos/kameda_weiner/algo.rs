@@ -30,9 +30,9 @@ use crate::nfa::algos::kameda_weiner::grid::search_all_prime_grids;
 use crate::nfa::algos::kameda_weiner::intersection_rule::convert_states_map_to_nfa;
 use crate::nfa::algos::kameda_weiner::states_map::KwStatesMap;
 use crate::nfa::nfa::AutNFA;
+use crate::traits::characterize::AutCharacterizable;
 use crate::traits::letter::AutLetter;
 use crate::traits::repr::{AbstractLanguagePrinter, AutGraphvizDrawable};
-use crate::traits::transform::AutTransformable;
 
 
 
@@ -65,7 +65,7 @@ pub fn kameda_weiner_algorithm<Letter : AutLetter>(nfa : &AutNFA<Letter>)
         if is_set_of_grids_covering_matrix(&rsm,&next_cover_candidate) {
             let rcm = replace_states_map_content_with_cover(&rsm,&next_cover_candidate);
             let rcm_as_nfa = convert_states_map_to_nfa(&rcm,&dfa,next_cover_candidate.len());
-            if nfa.contains(&rcm_as_nfa) && rcm_as_nfa.contains(nfa) && rcm_as_nfa.transitions.len() < num_states_criterion {
+            if nfa.equals(&rcm_as_nfa) && rcm_as_nfa.transitions.len() < num_states_criterion {
                 num_states_criterion = rcm_as_nfa.transitions.len();
                 candidate = Some(KwLegitCandidate::new(next_cover_candidate,rcm,rcm_as_nfa));
             }

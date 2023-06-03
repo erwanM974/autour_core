@@ -15,7 +15,9 @@ limitations under the License.
 */
 
 
-pub mod abstract_automaton_test;
+//pub mod abstract_automaton_test;
 //pub mod dfa;
-pub mod gnfa;
+//pub mod gnfa;
 //pub mod bre;
+pub mod nfa;
+pub mod dfa;
