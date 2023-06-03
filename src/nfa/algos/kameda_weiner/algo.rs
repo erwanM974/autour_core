@@ -18,6 +18,7 @@ limitations under the License.
 
 use std::collections::{BTreeSet, HashSet};
 use itertools::Itertools;
+use itertools::structs::Combinations;
 
 use graphviz_dot_builder::edge::edge::GraphVizEdge;
 use graphviz_dot_builder::graph::graph::GraphVizDiGraph;
@@ -53,6 +54,7 @@ impl<Letter: AutLetter> KwLegitCandidate<Letter> {
 pub fn kameda_weiner_algorithm<Letter : AutLetter>(nfa : &AutNFA<Letter>)
             -> (AutDFA<Letter>,KwStatesMap,KwStatesMap,Option<KwLegitCandidate<Letter>>) {
     let (sm,dfa) = KwStatesMap::from_nfa(&nfa);
+    //println!("got initial state matrix of {:} rows and {:} columns", sm.rows_map_to_det_states.len(), sm.cols_map_to_dual_states.len());
     // ***
     // the number of states of the minimal NFA is
     // smaller than min( |NFA|, |minDFA|, |minDFAdual| ) where
@@ -66,8 +68,10 @@ pub fn kameda_weiner_algorithm<Letter : AutLetter>(nfa : &AutNFA<Letter>)
     let mut candidate : Option<KwLegitCandidate<Letter>> = None;
     // ***
     let rsm = sm.reduce_matrix();
+    //println!("got reduced state matrix of {:} rows and {:} columns", rsm.rows_map_to_det_states.len(), rsm.cols_map_to_dual_states.len());
     // we store prime grids in a VEC and use their index in the vec as reference
     let prime_grids : Vec<(BTreeSet<usize>,BTreeSet<usize>)> = search_maximal_prime_grids(&rsm).into_iter().collect();
+    //println!("got {:} prime grids", prime_grids.len());
     // ***
     // here the HashSet<usize> is the set of indexes of the selected grids within "prime_grids"
     let mut seen : BTreeSet < BTreeSet<usize> > = btreeset!{};
@@ -78,11 +82,13 @@ pub fn kameda_weiner_algorithm<Letter : AutLetter>(nfa : &AutNFA<Letter>)
     // we will hence start looking for minimum covers of this number of grids
     // using itertools combinations of size "theoretical_min_state_num"
     let mut queue: Vec< BTreeSet<usize> > =vec![];
-    for elt in (0..prime_grids.len()).combinations(theoretical_min_state_num).into_iter() {
-        queue.push( elt.into_iter().collect() );
-    }
+    let prime_grid_indices : BTreeSet<usize> = (0..prime_grids.len()).into_iter().collect();
+    let mut initial_combinator = prime_grid_indices.into_iter().combinations(theoretical_min_state_num);
     // ***
-    while let Some(next_cover_candidate) = queue.pop() {
+    while let Some(next_cover_candidate) = match initial_combinator.next() {
+        None => {queue.pop()},
+        Some(indices_as_vec) => {Some(indices_as_vec.into_iter().collect())}
+    } {
         seen.insert(next_cover_candidate.clone());
         if next_cover_candidate.len() >= num_states_criterion {
             continue
@@ -202,6 +208,7 @@ pub fn draw_kameda_weiner_process<Letter : AutLetter,Printer : AbstractLanguageP
 #[cfg(test)]
 mod tests {
     use std::collections::{HashMap, HashSet};
+    use std::time::Instant;
     use maplit::{hashmap, hashset};
     use crate::nfa::algos::kameda_weiner::algo::{draw_kameda_weiner_process, kameda_weiner_algorithm};
     use crate::nfa::nfa::AutNFA;
@@ -221,6 +228,44 @@ mod tests {
                                  hashset!{0},
                                  hashset!{1,2},
                                  transitions).unwrap()
+    }
+
+    fn get_bigger_example() -> AutNFA::<char> {
+        let alphabet : HashSet<char> = vec![b'a',b'b',b'c',b'd',b'e',b'f',b'g',b'h'].into_iter().map(char::from).collect();
+        let mut transitions: Vec<HashMap<char, HashSet<usize>>> = vec![hashmap!{};10];
+        transitions[0].insert('a', hashset!{1});
+        transitions[0].insert('e', hashset!{2});
+        transitions[1].insert('b', hashset!{3});
+        transitions[3].insert('c', hashset!{6});
+        transitions[6].insert('d', hashset!{0});
+        transitions[2].insert('f', hashset!{4});
+        transitions[2].insert('g', hashset!{5});
+        transitions[4].insert('g', hashset!{7});
+        transitions[5].insert('f', hashset!{7});
+        transitions[5].insert('h', hashset!{8});
+        transitions[7].insert('h', hashset!{9});
+        transitions[8].insert('f', hashset!{9});
+        AutNFA::<char>::from_raw(alphabet,
+                                 hashset!{0},
+                                 hashset!{9},
+                                 transitions).unwrap()
+    }
+
+    #[test]
+    fn perf_test1() {
+        let nfa = get_bigger_example();
+        println!("testing Kameda-Weiner on a NFA with {:} states with alphabet of {:} characters", nfa.transitions.len(), nfa.alphabet.len());
+        let now = Instant::now();
+        let (dfa,sm,rsm,legit) = kameda_weiner_algorithm(&nfa);
+        let elapsed = now.elapsed();
+        let new_num_states = match legit {
+            None => {nfa.transitions.len()},
+            Some(cand) => {
+                println!("got candidate");
+                cand.nfa.transitions.len()
+            }
+        };
+        println!("performed KW from NFA with {:} states in {:}μs to get a NFA with {:} states", nfa.transitions.len(), elapsed.as_micros(), new_num_states);
     }
 
     #[test]

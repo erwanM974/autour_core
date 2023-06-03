@@ -1,6 +1,6 @@
 [package]
 name = "autour_core"
-version = "0.1.8"
+version = "0.1.9"
 authors = ["Erwan Mahe"]
 edition = "2021"
 

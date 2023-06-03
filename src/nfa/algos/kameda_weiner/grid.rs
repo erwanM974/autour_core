@@ -15,8 +15,8 @@ limitations under the License.
 */
 
 
-use std::collections::{VecDeque,BTreeSet};
-use maplit::btreeset;
+use std::collections::{VecDeque, BTreeSet, HashSet};
+use maplit::{btreeset, hashset};
 
 use crate::nfa::algos::kameda_weiner::states_map::KwStatesMap;
 
@@ -53,21 +53,76 @@ fn is_grid_covered_by_element_of_set(small_grid : &(BTreeSet<usize>, BTreeSet<us
     false
 }
 
+fn get_cols_with_zeros_in_grid(states_map : &KwStatesMap,
+                               current_grid : &(BTreeSet<usize>, BTreeSet<usize>))
+                -> (HashSet<usize>,HashSet<usize>) {
+    let mut cols_with_only_zeroes = hashset! {};
+    let mut cols_with_some_zeroes = hashset! {};
+    for col_id in &current_grid.1 {
+        let mut has_some_zeroes = false;
+        let mut has_only_zeroes = true;
+        for row_id in &current_grid.0 {
+            let row_in_matrix = states_map.matrix_map_to_nfa_states.get(*row_id).unwrap();
+            let cell = row_in_matrix.get(*col_id).unwrap();
+            if cell.is_some() {
+                has_only_zeroes = false;
+            } else {
+                has_some_zeroes = true;
+            }
+        }
+        if has_some_zeroes {
+            cols_with_some_zeroes.insert(*col_id);
+            if has_only_zeroes {
+                cols_with_only_zeroes.insert(*col_id);
+            }
+        }
+    }
+    (cols_with_some_zeroes,cols_with_only_zeroes)
+}
+
+fn get_rows_with_zeros_in_grid(states_map : &KwStatesMap,
+                               current_grid : &(BTreeSet<usize>, BTreeSet<usize>))
+            -> (HashSet<usize>,HashSet<usize>) {
+    let mut rows_with_only_zeroes = hashset! {};
+    let mut rows_with_some_zeroes = hashset! {};
+    for row_id in &current_grid.0 {
+        let row_in_matrix = states_map.matrix_map_to_nfa_states.get(*row_id).unwrap();
+        let mut has_some_zeroes = false;
+        let mut has_only_zeroes = true;
+        for col_id in &current_grid.1 {
+            let cell = row_in_matrix.get(*col_id).unwrap();
+            if cell.is_some() {
+                has_only_zeroes = false;
+            } else {
+                has_some_zeroes = true;
+            }
+        }
+        if has_some_zeroes {
+            rows_with_some_zeroes.insert(*row_id);
+            if has_only_zeroes {
+                rows_with_only_zeroes.insert(*row_id);
+            }
+        }
+    }
+    (rows_with_some_zeroes,rows_with_only_zeroes)
+}
+
 pub fn search_maximal_prime_grids(states_map : &KwStatesMap) -> BTreeSet<(BTreeSet<usize>,BTreeSet<usize>)> {
     let mut grids : BTreeSet<(BTreeSet<usize>,BTreeSet<usize>)> = btreeset!{};
     let mut seen =  btreeset!{};
-    let mut queue = VecDeque::new();
+    let mut queue = vec![];
     {
         let init_rows : BTreeSet<usize> = (0..states_map.rows_map_to_det_states.len()).collect();
         let init_columns : BTreeSet<usize> = (0..states_map.cols_map_to_dual_states.len()).collect();
-        queue.push_back( (init_rows,init_columns) );
+        queue.push( (init_rows,init_columns) );
     }
-    while let Some(new_grid_candidate) = queue.pop_front() {
+    while let Some(new_grid_candidate) = queue.pop() {
         seen.insert( new_grid_candidate.clone() );
-        if is_grid_covered_by_element_of_set(&new_grid_candidate,&grids) {
-            continue
-        }
         if is_grid_prime(states_map,&new_grid_candidate) {
+            if is_grid_covered_by_element_of_set(&new_grid_candidate,&grids) {
+                continue
+            }
+            //println!("got a prime grid : {:?}", new_grid_candidate);
             // remove all previously discovered grids
             // that are strictly covered by the new grid
             grids = grids.into_iter()
@@ -75,21 +130,51 @@ pub fn search_maximal_prime_grids(states_map : &KwStatesMap) -> BTreeSet<(BTreeS
                 .collect();
             grids.insert( new_grid_candidate );
         } else {
-            for removed_row in &new_grid_candidate.0 {
-                let mut rows_copy = new_grid_candidate.0.clone();
-                rows_copy.remove(removed_row);
-                let new = (rows_copy, new_grid_candidate.1.clone());
-                if !seen.contains(&new) && !queue.contains(&new) {
-                    queue.push_back(new);
+            let mut new_candidates_to_push = vec![];
+            let (rows_with_some_zeroes,rows_with_only_zeroes) = get_rows_with_zeros_in_grid(states_map,&new_grid_candidate);
+            if rows_with_only_zeroes.len() > 0 {
+                if new_grid_candidate.0.len() > rows_with_only_zeroes.len() {
+                    let mut rows_copy = new_grid_candidate.0.clone();
+                    for row_to_remove in rows_with_only_zeroes {rows_copy.remove(&row_to_remove);}
+                    let new = (rows_copy, new_grid_candidate.1.clone());
+                    new_candidates_to_push.push(new);
+                }
+            } else {
+                let (cols_with_some_zeroes,cols_with_only_zeroes) = get_cols_with_zeros_in_grid(states_map,&new_grid_candidate);
+                if cols_with_only_zeroes.len() > 0 {
+                    if new_grid_candidate.1.len() > cols_with_only_zeroes.len() {
+                        let mut columns_copy = new_grid_candidate.1.clone();
+                        for col_to_remove in cols_with_only_zeroes {columns_copy.remove(&col_to_remove);}
+                        let new = (new_grid_candidate.0.clone(),columns_copy);
+                        new_candidates_to_push.push(new);
+                    }
+                } else {
+                    if new_grid_candidate.0.len() > 1 {
+                        for row_to_remove in rows_with_some_zeroes {
+                            let mut rows_copy = new_grid_candidate.0.clone();
+                            rows_copy.remove(&row_to_remove);
+                            let new = (rows_copy, new_grid_candidate.1.clone());
+                            new_candidates_to_push.push(new);
+                        }
+                    }
+                    if new_grid_candidate.1.len() > 1 {
+                        for col_to_remove in cols_with_some_zeroes {
+                            let mut columns_copy = new_grid_candidate.1.clone();
+                            columns_copy.remove(&col_to_remove);
+                            let new = (new_grid_candidate.0.clone(),columns_copy);
+                            new_candidates_to_push.push(new);
+                            //}
+                        }
+                    }
                 }
             }
-            for removed_column in &new_grid_candidate.1 {
-                let mut columns_copy = new_grid_candidate.1.clone();
-                columns_copy.remove(removed_column);
-                let new = (new_grid_candidate.0.clone(),columns_copy);
-                if !seen.contains(&new) && !queue.contains(&new) {
-                    queue.push_back(new);
-                }
+            // ***
+            new_candidates_to_push = new_candidates_to_push
+                .into_iter()
+                .filter(|x| (!seen.contains(x)) && (!queue.contains(x)))
+                .collect();
+            for new in new_candidates_to_push {
+                queue.push(new)
             }
         }
     }
