@@ -23,7 +23,7 @@ use crate::nfa::algos::kameda_weiner::states_map::KwStatesMap;
 
 
 pub fn is_set_of_grids_covering_matrix(states_map : &KwStatesMap,
-                                       set_of_grids : &BTreeSet<(BTreeSet<usize>,BTreeSet<usize>)>) -> bool {
+                                       set_of_grids : &BTreeSet<&(BTreeSet<usize>,BTreeSet<usize>)>) -> bool {
     for (row_id,matrix_row) in states_map.matrix_map_to_nfa_states.iter().enumerate() {
         for (col_id, matrix_cell) in matrix_row.iter().enumerate() {
             // if there is a state intersection in the cell then..
@@ -49,10 +49,10 @@ pub fn is_set_of_grids_covering_matrix(states_map : &KwStatesMap,
 
 
 pub fn replace_states_map_content_with_cover(states_map : &KwStatesMap,
-                                             set_of_grids : &BTreeSet<(BTreeSet<usize>,BTreeSet<usize>)>) -> KwStatesMap {
+                                             set_of_grids : &BTreeSet<&(BTreeSet<usize>,BTreeSet<usize>)>) -> KwStatesMap {
     // ***
     // structure set of grids into vec to give them unique ids
-    let grids_as_vec : Vec<(BTreeSet<usize>,BTreeSet<usize>)> = set_of_grids.iter().cloned().collect();
+    let grids_as_vec : Vec<&(BTreeSet<usize>,BTreeSet<usize>)> = set_of_grids.iter().cloned().collect();
     // ***
     let new_rows_map_to_det_states = states_map.rows_map_to_det_states.clone();
     let new_cols_map_to_dual_states = states_map.cols_map_to_dual_states.clone();

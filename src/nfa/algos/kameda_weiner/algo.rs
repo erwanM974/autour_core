@@ -16,7 +16,9 @@ limitations under the License.
 
 
 
-use std::collections::BTreeSet;
+use std::collections::{BTreeSet, HashSet};
+use itertools::Itertools;
+
 use graphviz_dot_builder::edge::edge::GraphVizEdge;
 use graphviz_dot_builder::graph::graph::GraphVizDiGraph;
 use graphviz_dot_builder::item::node::node::GraphVizNode;
@@ -51,32 +53,56 @@ impl<Letter: AutLetter> KwLegitCandidate<Letter> {
 pub fn kameda_weiner_algorithm<Letter : AutLetter>(nfa : &AutNFA<Letter>)
             -> (AutDFA<Letter>,KwStatesMap,KwStatesMap,Option<KwLegitCandidate<Letter>>) {
     let (sm,dfa) = KwStatesMap::from_nfa(&nfa);
-    let rsm = sm.reduce_matrix();
-    let all_prime_grids = search_maximal_prime_grids(&rsm);
     // ***
-    // we will search for a candidate with at worst the same number of states as the original nfa
-    let mut num_states_criterion = nfa.transitions.len();
+    // the number of states of the minimal NFA is
+    // smaller than min( |NFA|, |minDFA|, |minDFAdual| ) where
+    //      |NFA| is the number of states of the original NFA
+    //      |minDFA| is the number of states of the minimal DFA obtained from minimizing the determinization of the NFA
+    //      |minDFAdual| is the number of states of the minimal DFA obtained from minimizing the determinization of the dual of the NFA
+    // we will search for a candidate with at worst this number of states
+    let mut num_states_criterion = [nfa.transitions.len(),
+                                            sm.rows_map_to_det_states.len(),
+                                            sm.cols_map_to_dual_states.len()].iter().min().unwrap() + 1;
     let mut candidate : Option<KwLegitCandidate<Letter>> = None;
     // ***
-    let mut seen : BTreeSet < BTreeSet<(BTreeSet<usize>,BTreeSet<usize>)> > = btreeset!{};
-    let mut queue: Vec< BTreeSet<(BTreeSet<usize>,BTreeSet<usize>)> > = vec![btreeset!{}];
+    let rsm = sm.reduce_matrix();
+    // we store prime grids in a VEC and use their index in the vec as reference
+    let prime_grids : Vec<(BTreeSet<usize>,BTreeSet<usize>)> = search_maximal_prime_grids(&rsm).into_iter().collect();
+    // ***
+    // here the HashSet<usize> is the set of indexes of the selected grids within "prime_grids"
+    let mut seen : BTreeSet < BTreeSet<usize> > = btreeset!{};
+    // the number of states of the minimal NFA is
+    // greater than partie_entiere(log_2(|minDFA|))
+    // where |minDFA| is the number of states of the minimal DFA obtained from minimizing the determinization of the NFA
+    let theoretical_min_state_num = sm.rows_map_to_det_states.len().checked_ilog2().unwrap() as usize;
+    // we will hence start looking for minimum covers of this number of grids
+    // using itertools combinations of size "theoretical_min_state_num"
+    let mut queue: Vec< BTreeSet<usize> > =vec![];
+    for elt in (0..prime_grids.len()).combinations(theoretical_min_state_num).into_iter() {
+        queue.push( elt.into_iter().collect() );
+    }
+    // ***
     while let Some(next_cover_candidate) = queue.pop() {
         seen.insert(next_cover_candidate.clone());
         if next_cover_candidate.len() >= num_states_criterion {
             continue
         }
-        if is_set_of_grids_covering_matrix(&rsm,&next_cover_candidate) {
-            let rcm = replace_states_map_content_with_cover(&rsm,&next_cover_candidate);
+        let candidate_grids : BTreeSet<&(BTreeSet<usize>,BTreeSet<usize>)> =
+            next_cover_candidate.iter().map(|id| prime_grids.get(*id).unwrap()).collect();
+        if is_set_of_grids_covering_matrix(&rsm,&candidate_grids) {
+            let rcm = replace_states_map_content_with_cover(&rsm,&candidate_grids);
             let rcm_as_nfa = convert_states_map_to_nfa(&rcm,&dfa,next_cover_candidate.len());
             if nfa.equals(&rcm_as_nfa) {
                 num_states_criterion = rcm_as_nfa.transitions.len();
-                candidate = Some(KwLegitCandidate::new(next_cover_candidate,rcm,rcm_as_nfa));
+                let cloned_grids : BTreeSet<(BTreeSet<usize>,BTreeSet<usize>)> =
+                    candidate_grids.into_iter().cloned().collect();
+                candidate = Some(KwLegitCandidate::new(cloned_grids,rcm,rcm_as_nfa));
             }
         } else {
-            for grid in &all_prime_grids {
-                if !next_cover_candidate.contains(grid) {
+            for grid_id in 0..prime_grids.len() {
+                if !next_cover_candidate.contains(&grid_id) {
                     let mut new_candidate = next_cover_candidate.clone();
-                    new_candidate.insert(grid.clone());
+                    new_candidate.insert(grid_id);
                     if !seen.contains(&new_candidate) && !queue.contains(&new_candidate) {
                         queue.push(new_candidate);
                     }

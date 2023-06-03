@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 
-use std::collections::BTreeSet;
+use std::collections::{VecDeque,BTreeSet};
 use maplit::btreeset;
 
 use crate::nfa::algos::kameda_weiner::states_map::KwStatesMap;
@@ -56,13 +56,13 @@ fn is_grid_covered_by_element_of_set(small_grid : &(BTreeSet<usize>, BTreeSet<us
 pub fn search_maximal_prime_grids(states_map : &KwStatesMap) -> BTreeSet<(BTreeSet<usize>,BTreeSet<usize>)> {
     let mut grids : BTreeSet<(BTreeSet<usize>,BTreeSet<usize>)> = btreeset!{};
     let mut seen =  btreeset!{};
-    let mut queue = vec![];
+    let mut queue = VecDeque::new();
     {
         let init_rows : BTreeSet<usize> = (0..states_map.rows_map_to_det_states.len()).collect();
         let init_columns : BTreeSet<usize> = (0..states_map.cols_map_to_dual_states.len()).collect();
-        queue.push( (init_rows,init_columns) );
+        queue.push_back( (init_rows,init_columns) );
     }
-    while let Some(new_grid_candidate) = queue.pop() {
+    while let Some(new_grid_candidate) = queue.pop_front() {
         seen.insert( new_grid_candidate.clone() );
         if is_grid_covered_by_element_of_set(&new_grid_candidate,&grids) {
             continue
@@ -80,7 +80,7 @@ pub fn search_maximal_prime_grids(states_map : &KwStatesMap) -> BTreeSet<(BTreeS
                 rows_copy.remove(removed_row);
                 let new = (rows_copy, new_grid_candidate.1.clone());
                 if !seen.contains(&new) && !queue.contains(&new) {
-                    queue.push(new);
+                    queue.push_back(new);
                 }
             }
             for removed_column in &new_grid_candidate.1 {
@@ -88,7 +88,7 @@ pub fn search_maximal_prime_grids(states_map : &KwStatesMap) -> BTreeSet<(BTreeS
                 columns_copy.remove(removed_column);
                 let new = (new_grid_candidate.0.clone(),columns_copy);
                 if !seen.contains(&new) && !queue.contains(&new) {
-                    queue.push(new);
+                    queue.push_back(new);
                 }
             }
         }
