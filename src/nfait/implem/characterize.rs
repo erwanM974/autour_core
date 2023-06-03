@@ -15,7 +15,6 @@ limitations under the License.
 */
 
 
-use std::collections::HashSet;
 use crate::nfait::nfait::AutNFAIT;
 use crate::traits::characterize::AutCharacterizable;
 use crate::traits::letter::AutLetter;

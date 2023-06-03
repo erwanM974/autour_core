@@ -49,13 +49,13 @@ impl<Letter: AutLetter> KwLegitCandidate<Letter> {
 }
 
 pub fn kameda_weiner_algorithm<Letter : AutLetter>(nfa : &AutNFA<Letter>)
-            -> (AutDFA<Letter>,KwStatesMap,KwStatesMap,KwLegitCandidate<Letter>) {
+            -> (AutDFA<Letter>,KwStatesMap,KwStatesMap,Option<KwLegitCandidate<Letter>>) {
     let (sm,dfa) = KwStatesMap::from_nfa(&nfa);
     let rsm = sm.reduce_matrix();
     let all_prime_grids = search_all_prime_grids(&rsm);
     // ***
     // we will search for a candidate with at worst the same number of states as the original nfa
-    let mut num_states_criterion = nfa.transitions.len() + 1;
+    let mut num_states_criterion = nfa.transitions.len();
     let mut candidate : Option<KwLegitCandidate<Letter>> = None;
     // ***
     let mut seen : BTreeSet < BTreeSet<(BTreeSet<usize>,BTreeSet<usize>)> > = btreeset!{};
@@ -68,7 +68,7 @@ pub fn kameda_weiner_algorithm<Letter : AutLetter>(nfa : &AutNFA<Letter>)
         if is_set_of_grids_covering_matrix(&rsm,&next_cover_candidate) {
             let rcm = replace_states_map_content_with_cover(&rsm,&next_cover_candidate);
             let rcm_as_nfa = convert_states_map_to_nfa(&rcm,&dfa,next_cover_candidate.len());
-            if nfa.equals(&rcm_as_nfa) && rcm_as_nfa.transitions.len() < num_states_criterion {
+            if nfa.equals(&rcm_as_nfa) {
                 num_states_criterion = rcm_as_nfa.transitions.len();
                 candidate = Some(KwLegitCandidate::new(next_cover_candidate,rcm,rcm_as_nfa));
             }
@@ -85,7 +85,7 @@ pub fn kameda_weiner_algorithm<Letter : AutLetter>(nfa : &AutNFA<Letter>)
         }
     }
     // ***
-    (dfa,sm,rsm, candidate.unwrap())
+    (dfa,sm,rsm, candidate)
 }
 
 
@@ -188,7 +188,7 @@ mod tests {
         transitions[0].insert('a', hashset!{0,2});
         transitions[0].insert('b', hashset!{1});
         transitions[1].insert('a', hashset!{0});
-        transitions[1].insert('b', hashset!{1,2});;
+        transitions[1].insert('b', hashset!{1,2});
         transitions[2].insert('a', hashset!{0});
         transitions[2].insert('b', hashset!{2});
         AutNFA::<char>::from_raw(alphabet,
@@ -204,11 +204,11 @@ mod tests {
 
         let nfa = get_example();
         let (dfa,sm,rsm,legit) = kameda_weiner_algorithm(&nfa);
-        draw_kameda_weiner_process(&parent_folder,&"example".to_string(),&CharAsLetterPrinter{},&nfa,&dfa,&sm,&rsm,&legit);
+        draw_kameda_weiner_process(&parent_folder,&"example".to_string(),&CharAsLetterPrinter{},&nfa,&dfa,&sm,&rsm,&legit.unwrap());
 
         let reversed_nfa = nfa.reverse();
         let (dfa,sm,rsm,legit) = kameda_weiner_algorithm(&reversed_nfa);
-        draw_kameda_weiner_process(&parent_folder,&"example_reversed".to_string(),&CharAsLetterPrinter{},&reversed_nfa,&dfa,&sm,&rsm,&legit);
+        draw_kameda_weiner_process(&parent_folder,&"example_reversed".to_string(),&CharAsLetterPrinter{},&reversed_nfa,&dfa,&sm,&rsm,&legit.unwrap());
 
     }
 }

@@ -19,6 +19,7 @@ use maplit::{hashmap, hashset};
 use crate::nfa::algos::kameda_weiner::algo::kameda_weiner_algorithm;
 
 use crate::nfa::nfa::AutNFA;
+use crate::traits::access::AutAccessible;
 use crate::traits::transform::AutTransformable;
 use crate::traits::build::AutBuildable;
 use crate::traits::characterize::AutCharacterizable;
@@ -75,7 +76,11 @@ impl<Letter: AutLetter> AutTransformable<Letter> for AutNFA<Letter> {
     }
 
     fn minimize(self) -> Self {
-        kameda_weiner_algorithm(&self).3.nfa
+        let trimmed = self.trim();
+        match kameda_weiner_algorithm(&trimmed).3 {
+            None => {trimmed},
+            Some(got) => {got.nfa}
+        }
     }
 
     // De Morgan
