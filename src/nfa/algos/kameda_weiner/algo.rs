@@ -16,9 +16,8 @@ limitations under the License.
 
 
 
-use std::collections::{BTreeSet, HashSet};
+use std::collections::{BTreeSet};
 use itertools::Itertools;
-use itertools::structs::Combinations;
 
 use graphviz_dot_builder::edge::edge::GraphVizEdge;
 use graphviz_dot_builder::graph::graph::GraphVizDiGraph;

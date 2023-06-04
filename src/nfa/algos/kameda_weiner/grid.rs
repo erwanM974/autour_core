@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 
-use std::collections::{VecDeque, BTreeSet, HashSet};
+use std::collections::{BTreeSet, HashSet};
 use maplit::{btreeset, hashset};
 
 use crate::nfa::algos::kameda_weiner::states_map::KwStatesMap;
