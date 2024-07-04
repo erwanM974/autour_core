@@ -15,73 +15,49 @@ limitations under the License.
 */
 
 
-
-use std::collections::HashSet;
 use maplit::btreeset;
 
 use crate::bre::bre::ExpBRE;
 use crate::bre::term::TermBRE;
 
-use crate::traits::error::AutError;
-use crate::traits::letter::{AutAlphabetSubstitutable, AutLetter};
+use crate::traits::letter::{AutAlphabetSubstitutable, AutLetter, get_new_alphabet_from_hiding, get_new_alphabet_from_substitution};
 
 
 impl<Letter: AutLetter> AutAlphabetSubstitutable<Letter> for TermBRE<Letter> {
 
-    fn substitute_alphabet(self,
-                           _new_alphabet: HashSet<Letter>,
-                           _substitution: &dyn Fn(&Letter) -> Letter) -> Result<Self, AutError<Letter>> {
-        panic!("shouldn't be called");
-    }
 
-    fn substitute_letters_within_alphabet(self,
-                                          substitution: &dyn Fn(&Letter) -> Letter) -> Result<Self, AutError<Letter>> {
+    fn substitute_letters(self,
+                          remove_from_alphabet : bool,
+                          substitution : &dyn Fn(&Letter) -> Letter) -> Self {
         match self {
-            TermBRE::Epsilon => {Ok(TermBRE::Epsilon)},
-            TermBRE::Empty => {Ok(TermBRE::Empty)},
+            TermBRE::Epsilon => {TermBRE::Epsilon},
+            TermBRE::Empty => {TermBRE::Empty},
             TermBRE::Literal(letter) => {
-                Ok(TermBRE::Literal(substitution(&letter)))
+                TermBRE::Literal(substitution(&letter))
             },
             TermBRE::Kleene(sub_term) => {
-                match sub_term.substitute_letters_within_alphabet(substitution) {
-                    Err(e) => {Err(e)},
-                    Ok(subbed) => {
-                        Ok(TermBRE::Kleene(Box::new(subbed)))
-                    }
-                }
+                TermBRE::Kleene(Box::new(sub_term.substitute_letters(remove_from_alphabet,substitution)))
             },
             TermBRE::Union(sub_terms) => {
                 let mut subbed_terms = btreeset!{};
                 for sub_term in sub_terms {
-                    match sub_term.substitute_letters_within_alphabet(substitution) {
-                        Err(e) => {
-                            return Err(e);
-                        },
-                        Ok(subbed) => {
-                            subbed_terms.insert(subbed);
-                        }
-                    }
+                    subbed_terms.insert(sub_term.substitute_letters(remove_from_alphabet,substitution));
                 }
-                Ok(TermBRE::Union(subbed_terms))
+                TermBRE::Union(subbed_terms)
             },
             TermBRE::Concat(sub_terms) => {
                 let mut subbed_terms = vec!{};
                 for sub_term in sub_terms {
-                    match sub_term.substitute_letters_within_alphabet(substitution) {
-                        Err(e) => {
-                            return Err(e);
-                        },
-                        Ok(subbed) => {
-                            subbed_terms.push(subbed)
-                        }
-                    }
+                    subbed_terms.push(sub_term.substitute_letters(remove_from_alphabet,substitution));
                 }
-                Ok(TermBRE::Concat(subbed_terms))
+                TermBRE::Concat(subbed_terms)
             }
         }
     }
 
-    fn hide_letters(self, _hide_alphabet : bool, should_hide: &dyn Fn(&Letter) -> bool) -> Self {
+    fn hide_letters(self,
+                    remove_from_alphabet : bool,
+                    should_hide : &dyn Fn(&Letter) -> bool) -> Self {
         match self {
             TermBRE::Epsilon => {TermBRE::Epsilon},
             TermBRE::Empty => {TermBRE::Empty},
@@ -93,19 +69,19 @@ impl<Letter: AutLetter> AutAlphabetSubstitutable<Letter> for TermBRE<Letter> {
                 }
             },
             TermBRE::Kleene(sub_term) => {
-                TermBRE::Kleene(Box::new(sub_term.hide_letters(_hide_alphabet,should_hide)))
+                TermBRE::Kleene(Box::new(sub_term.hide_letters(remove_from_alphabet,should_hide)))
             },
             TermBRE::Union(sub_terms) => {
                 let mut new_term = TermBRE::Empty;
                 for sub_term in sub_terms {
-                    new_term = new_term.unite(sub_term.hide_letters(_hide_alphabet,should_hide));
+                    new_term = new_term.unite(sub_term.hide_letters(remove_from_alphabet,should_hide));
                 }
                 new_term
             },
             TermBRE::Concat(sub_terms) => {
                 let mut new_term = TermBRE::Epsilon;
                 for sub_term in sub_terms {
-                    new_term = new_term.concatenate(sub_term.hide_letters(_hide_alphabet,should_hide));
+                    new_term = new_term.concatenate(sub_term.hide_letters(remove_from_alphabet,should_hide));
                 }
                 new_term
             }
@@ -116,30 +92,20 @@ impl<Letter: AutLetter> AutAlphabetSubstitutable<Letter> for TermBRE<Letter> {
 
 impl<Letter: AutLetter> AutAlphabetSubstitutable<Letter> for ExpBRE<Letter> {
 
-    fn substitute_alphabet(self,
-                           new_alphabet: HashSet<Letter>,
-                           substitution: &dyn Fn(&Letter) -> Letter) -> Result<Self,AutError<Letter>> {
-        match self.term.substitute_letters_within_alphabet(substitution) {
-            Err(e) => {Err(e)},
-            Ok(new_term) => {
-                ExpBRE::from_raw(new_alphabet,new_term)
-            }
-        }
+    fn substitute_letters(self,
+                          remove_from_alphabet : bool,
+                          substitution : &dyn Fn(&Letter) -> Letter) -> Self {
+        ExpBRE::from_raw(get_new_alphabet_from_substitution(&self.alphabet,remove_from_alphabet,substitution),
+                         self.term.substitute_letters(remove_from_alphabet,substitution)
+        ).unwrap()
     }
 
-    fn substitute_letters_within_alphabet(self,
-                                          substitution: &dyn Fn(&Letter) -> Letter) -> Result<Self,AutError<Letter>> {
-        let alphabet = self.alphabet.clone();
-        self.substitute_alphabet(alphabet,substitution)
-    }
-
-    fn hide_letters(self, hide_alphabet : bool, should_hide: &dyn Fn(&Letter) -> bool) -> Self {
-        let new_alphabet : HashSet<Letter> = if hide_alphabet {
-            self.alphabet.into_iter().filter(|l| !should_hide(l)).collect()
-        }  else {
-            self.alphabet
-        };
-        ExpBRE::from_raw(new_alphabet,self.term.hide_letters(hide_alphabet,should_hide)).unwrap()
+    fn hide_letters(self,
+                    remove_from_alphabet : bool,
+                    should_hide : &dyn Fn(&Letter) -> bool) -> Self {
+        ExpBRE::from_raw(get_new_alphabet_from_hiding(&self.alphabet,remove_from_alphabet,should_hide),
+                         self.term.hide_letters(remove_from_alphabet,should_hide)
+        ).unwrap()
     }
 
 }

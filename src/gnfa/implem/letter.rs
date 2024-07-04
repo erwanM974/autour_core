@@ -16,52 +16,48 @@ limitations under the License.
 
 
 
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 use maplit::hashmap;
 
 use crate::bre::term::TermBRE;
 use crate::gnfa::gnfa::AutGNFA;
-use crate::traits::error::AutError;
-use crate::traits::letter::{AutAlphabetSubstitutable, AutLetter};
+use crate::traits::letter::{AutAlphabetSubstitutable, AutLetter, get_new_alphabet_from_hiding, get_new_alphabet_from_substitution};
 
 impl<Letter: AutLetter> AutAlphabetSubstitutable<Letter> for AutGNFA<Letter> {
 
-    fn substitute_alphabet(self,
-                           new_alphabet: HashSet<Letter>,
-                           substitution: &dyn Fn(&Letter) -> Letter) -> Result<Self, AutError<Letter>> {
+    fn substitute_letters(self,
+                          remove_from_alphabet : bool,
+                          substitution : &dyn Fn(&Letter) -> Letter) -> Self {
         let mut new_transitions : HashMap<(usize,usize), TermBRE<Letter>> = hashmap!{};
         for ((orig,targ),term) in self.transitions {
-            match term.substitute_letters_within_alphabet(substitution) {
-                Err(e) => {
-                    return Err(e);
-                },
-                Ok(new_term) => {
-                    new_transitions.insert((orig,targ),new_term);
-                }
-            }
+            new_transitions.insert(
+                (orig,targ),
+                term.substitute_letters(remove_from_alphabet,substitution)
+            );
         }
-        AutGNFA::from_raw(self.alphabet,
-                          self.states_num,
-                          self.start_state,
-                          self.accept_state,
-                          new_transitions)
+        AutGNFA::from_raw(
+            get_new_alphabet_from_substitution(&self.alphabet,remove_from_alphabet,substitution),
+            self.states_num,
+            self.start_state,
+            self.accept_state,
+            new_transitions).unwrap()
     }
 
-    fn substitute_letters_within_alphabet(self,
-                                          substitution : &dyn Fn(&Letter) -> Letter) -> Result<Self,AutError<Letter>> {
-        let alphabet = self.alphabet.clone();
-        self.substitute_alphabet(alphabet, substitution)
-    }
-
-    fn hide_letters(self,hide_alphabet : bool, should_hide: &dyn Fn(&Letter) -> bool) -> Self {
+    fn hide_letters(self,
+                    remove_from_alphabet : bool,
+                    should_hide : &dyn Fn(&Letter) -> bool) -> Self {
         let mut new_transitions : HashMap<(usize,usize), TermBRE<Letter>> = hashmap!{};
         for ((orig,targ),term) in self.transitions {
-            new_transitions.insert((orig,targ),term.hide_letters(hide_alphabet,should_hide));
+            new_transitions.insert(
+                (orig,targ),
+                term.hide_letters(remove_from_alphabet,should_hide)
+            );
         }
-        AutGNFA::from_raw(self.alphabet,
-                          self.states_num,
-                          self.start_state,
-                          self.accept_state,
-                          new_transitions).unwrap()
+        AutGNFA::from_raw(
+            get_new_alphabet_from_hiding(&self.alphabet,remove_from_alphabet,should_hide),
+            self.states_num,
+            self.start_state,
+            self.accept_state,
+            new_transitions).unwrap()
     }
 }

@@ -19,7 +19,7 @@ use std::collections::HashSet;
 use std::fmt::Debug;
 use std::hash::Hash;
 
-use crate::traits::error::AutError;
+
 
 pub trait AutLetter : Eq + Hash + Copy + Clone + Debug + Ord {}
 
@@ -27,16 +27,42 @@ impl<T : Eq + Hash + Copy + Clone + Debug + Ord> AutLetter for T {}
 
 pub trait AutAlphabetSubstitutable <Letter: AutLetter>  : Sized {
 
-    fn substitute_alphabet(self,
-                           new_alphabet : HashSet<Letter>,
-                           substitution : &dyn Fn(&Letter) -> Letter) -> Result<Self,AutError<Letter>>;
+    /// replaces specific letters occurring on the automaton/regular expression with some other letters
+    /// the optional boolean specifies whether or not substituted letters should also be removed from the alphabet
+    fn substitute_letters(self,
+                          remove_from_alphabet : bool,
+                          substitution : &dyn Fn(&Letter) -> Letter) -> Self;
 
-    fn substitute_letters_within_alphabet(self,
-                                          substitution : &dyn Fn(&Letter) -> Letter) -> Result<Self,AutError<Letter>>;
 
+    /// replaces specific letters occurring on the automaton/regular expression with the empty word
+    /// the optional boolean specifies whether or not hidden letters should also be removed from the alphabet
     fn hide_letters(self,
-                    hide_alphabet : bool,
-                    should_hide : &dyn Fn(&Letter) -> bool) -> Self;
+                          remove_from_alphabet : bool,
+                          should_hide : &dyn Fn(&Letter) -> bool) -> Self;
 
 }
 
+pub fn get_new_alphabet_from_substitution<Letter: AutLetter>(alphabet : &HashSet<Letter>,
+                                          remove_from_alphabet : bool,
+                                      substitution : &dyn Fn(&Letter) -> Letter) -> HashSet<Letter> {
+    let transformed_alphabet : HashSet<Letter> = alphabet
+        .iter().map(|letter| substitution(letter)).collect();
+    if remove_from_alphabet {
+        transformed_alphabet
+    } else {
+        let mut got = alphabet.clone();
+        got.extend(transformed_alphabet.into_iter());
+        got
+    }
+}
+
+
+pub fn get_new_alphabet_from_hiding<Letter: AutLetter>(alphabet : &HashSet<Letter>,
+                                                       remove_from_alphabet : bool,
+                                                       should_hide : &dyn Fn(&Letter) -> bool) -> HashSet<Letter> {
+    if remove_from_alphabet {
+        alphabet.iter().filter(|l| !should_hide(l)).cloned().collect()
+    }  else {
+        alphabet.clone()
+    }
+}

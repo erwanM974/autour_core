@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-use std::collections::{BTreeSet, HashMap, HashSet, VecDeque};
+use std::collections::{BTreeSet, HashMap, VecDeque};
 use maplit::{hashmap, hashset};
 
 use crate::bre::bre::ExpBRE;
@@ -102,54 +102,7 @@ impl<Letter : AutLetter> AutTranslatable<Letter> for AutNFAIT<Letter> {
                              self.finals.clone(),
                              self.transitions.clone()).unwrap()
         } else {
-            let mut epsilon_closures : Vec<HashSet<usize>> = vec![];
-            let mut states_to_epsilon_closures_map : Vec<usize> = vec![];
-            for state_id in 0..self.transitions.len() {
-                let closure = self.get_epsilon_closure(&hashset!{state_id});
-                match epsilon_closures.iter().position(|x| x == &closure) {
-                    None => {
-                        let index = epsilon_closures.len();
-                        epsilon_closures.push(closure);
-                        states_to_epsilon_closures_map.push(index);
-                    },
-                    Some(index) => {
-                        states_to_epsilon_closures_map.push(index);
-                    }
-                }
-            }
-            // ***
-            let mut initials = hashset!{};
-            for init_st in &self.initials {
-                let id_of_closure  = states_to_epsilon_closures_map.get(*init_st).unwrap();
-                initials.insert(*id_of_closure);
-            }
-            // ***
-            let mut finals = hashset!{};
-            for final_st in &self.finals {
-                let id_of_closure  = states_to_epsilon_closures_map.get(*final_st).unwrap();
-                finals.insert(*id_of_closure);
-            }
-            // ***
-            let mut transitions = vec![hashmap!{};epsilon_closures.len()];
-            for (orig,trans) in self.transitions.iter().enumerate() {
-                let orig_closure = states_to_epsilon_closures_map.get(orig).unwrap();
-                let orig_closure_outgoing = transitions.get_mut(*orig_closure).unwrap();
-                for (letter, targets) in trans {
-                    if !targets.is_empty() {
-                        let mut letter_targets = match orig_closure_outgoing.remove(letter) {
-                            Some(x) => {x},
-                            None => {hashset!{}}
-                        };
-                        for targ in targets {
-                            let targ_closure = states_to_epsilon_closures_map.get(*targ).unwrap();
-                            letter_targets.insert(*targ_closure);
-                        }
-                        orig_closure_outgoing.insert(*letter,letter_targets);
-                    }
-                }
-            }
-            // ***
-            AutNFA::from_raw(self.alphabet.clone(), initials, finals, transitions).unwrap()
+            self.to_dfa().to_nfa()
         }
     }
 

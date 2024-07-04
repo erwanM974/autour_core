@@ -19,22 +19,20 @@ use std::collections::{HashMap, HashSet};
 use maplit::hashmap;
 
 use crate::nfa::nfa::AutNFA;
-use crate::traits::error::AutError;
-use crate::traits::letter::{AutAlphabetSubstitutable, AutLetter};
+use crate::traits::letter::{AutAlphabetSubstitutable, AutLetter, get_new_alphabet_from_substitution};
 use crate::traits::translate::AutTranslatable;
 
 
 impl<Letter: AutLetter> AutAlphabetSubstitutable<Letter> for AutNFA<Letter> {
 
-    fn substitute_alphabet(self,
-                           new_alphabet: HashSet<Letter>,
-                           substitution: &dyn Fn(&Letter) -> Letter) -> Result<Self,AutError<Letter>> {
+    fn substitute_letters(self,
+                          remove_from_alphabet : bool,
+                          substitution : &dyn Fn(&Letter) -> Letter) -> Self {
         let mut new_transitions = vec![];
         for transition in self.transitions {
             let mut new_transition : HashMap<Letter, HashSet<usize>> = hashmap!{};
             for (letter, targets) in transition {
                 let substituted_letter : Letter = substitution(&letter);
-                // checking is the substituted_letter is in the new alphabet is done later when building the new NFA
                 if let Some(tars) = new_transition.get_mut(&substituted_letter) {
                     tars.extend(targets);
                 } else {
@@ -43,29 +41,14 @@ impl<Letter: AutLetter> AutAlphabetSubstitutable<Letter> for AutNFA<Letter> {
             }
             new_transitions.push(new_transition);
         }
-        AutNFA::from_raw(new_alphabet,self.initials,self.finals,new_transitions)
+        AutNFA::from_raw(
+            get_new_alphabet_from_substitution(&self.alphabet,remove_from_alphabet,substitution),
+            self.initials,
+            self.finals,
+            new_transitions).unwrap()
     }
 
-    fn substitute_letters_within_alphabet(self,
-                                          substitution: &dyn Fn(&Letter) -> Letter) -> Result<Self,AutError<Letter>> {
-        let mut new_transitions = vec![];
-        for transition in self.transitions {
-            let mut new_transition : HashMap<Letter, HashSet<usize>> = hashmap!{};
-            for (letter, targets) in transition {
-                let substituted_letter : Letter = substitution(&letter);
-                // checking is the substituted_letter is in the alphabet is done later when building the new NFA
-                if let Some(tars) = new_transition.get_mut(&substituted_letter) {
-                    tars.extend(targets);
-                } else {
-                    new_transition.insert( substituted_letter, targets);
-                }
-            }
-            new_transitions.push(new_transition);
-        }
-        AutNFA::from_raw(self.alphabet,self.initials,self.finals,new_transitions)
-    }
-
-    fn hide_letters(self, hide_alphabet : bool, should_hide: &dyn Fn(&Letter) -> bool) -> Self {
-        self.to_nfait().hide_letters(hide_alphabet,should_hide).to_nfa()
+    fn hide_letters(self, remove_from_alphabet : bool, should_hide: &dyn Fn(&Letter) -> bool) -> Self {
+        self.to_nfait().hide_letters(remove_from_alphabet,should_hide).to_nfa()
     }
 }

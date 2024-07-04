@@ -15,31 +15,19 @@ limitations under the License.
 */
 
 
-use std::collections::HashSet;
 
 use crate::dfa::dfa::AutDFA;
-use crate::traits::error::AutError;
 use crate::traits::letter::{AutAlphabetSubstitutable, AutLetter};
 use crate::traits::translate::AutTranslatable;
 
 
 impl<Letter: AutLetter> AutAlphabetSubstitutable<Letter> for AutDFA<Letter> {
 
-    fn substitute_alphabet(self,
-                           new_alphabet: HashSet<Letter>,
-                           substitution: &dyn Fn(&Letter) -> Letter) -> Result<Self,AutError<Letter>> {
-        match self.to_nfa().substitute_alphabet(new_alphabet, substitution) {
-            Err(e) => {Err(e)},
-            Ok(as_nfa) => {Ok(as_nfa.to_dfa())}
-        }
-    }
-
-    fn substitute_letters_within_alphabet(self,
-                                          substitution: &dyn Fn(&Letter) -> Letter) -> Result<Self,AutError<Letter>> {
-        match self.to_nfa().substitute_letters_within_alphabet(substitution) {
-            Err(e) => {Err(e)},
-            Ok(as_nfa) => {Ok(as_nfa.to_dfa())}
-        }
+    fn substitute_letters(self,
+                             remove_from_alphabet : bool,
+                             substitution : &dyn Fn(&Letter) -> Letter) -> Self {
+        // can't do it directly as substitution may cause non-determinism
+        self.to_nfa().substitute_letters(remove_from_alphabet, substitution).to_dfa()
     }
 
     fn hide_letters(self, hide_alphabet : bool, should_hide: &dyn Fn(&Letter) -> bool) -> Self {

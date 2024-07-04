@@ -74,7 +74,7 @@ impl<Letter: AutLetter> AutBuildable<Letter> for AutNFA<Letter> {
         Ok(self)
     }
 
-    fn repeat(mut self, num : usize) -> Self {
+    fn repeat(self, num : usize) -> Self {
         (0..num)
             .fold(AutNFA::new_empty_word(self.alphabet.clone()),
                   |acc, _| acc.concatenate(self.clone()).unwrap()

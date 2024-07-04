@@ -19,14 +19,13 @@ use std::collections::{HashMap, HashSet};
 use maplit::hashmap;
 
 use crate::nfait::nfait::AutNFAIT;
-use crate::traits::error::AutError;
-use crate::traits::letter::{AutAlphabetSubstitutable, AutLetter};
+use crate::traits::letter::{AutAlphabetSubstitutable, AutLetter, get_new_alphabet_from_hiding, get_new_alphabet_from_substitution};
 
 impl<Letter: AutLetter> AutAlphabetSubstitutable<Letter> for AutNFAIT<Letter> {
 
-    fn substitute_alphabet(self,
-                           new_alphabet: HashSet<Letter>,
-                           substitution: &dyn Fn(&Letter) -> Letter) -> Result<Self, AutError<Letter>> {
+    fn substitute_letters(self,
+                          remove_from_alphabet : bool,
+                          substitution : &dyn Fn(&Letter) -> Letter) -> Self {
         let mut new_transitions = vec![];
         for transition in self.transitions {
             let mut new_transition : HashMap<Letter, HashSet<usize>> = hashmap!{};
@@ -40,20 +39,22 @@ impl<Letter: AutLetter> AutAlphabetSubstitutable<Letter> for AutNFAIT<Letter> {
             }
             new_transitions.push(new_transition);
         }
-        AutNFAIT::from_raw(new_alphabet,self.initials,self.finals,new_transitions,self.epsilon_trans)
+        AutNFAIT::from_raw(
+            get_new_alphabet_from_substitution(&self.alphabet,remove_from_alphabet,substitution),
+            self.initials,
+            self.finals,
+            new_transitions,
+            self.epsilon_trans).unwrap()
     }
 
-    fn substitute_letters_within_alphabet(self,
-                                          substitution : &dyn Fn(&Letter) -> Letter) -> Result<Self,AutError<Letter>> {
-        let alphabet = self.alphabet.clone();
-        self.substitute_alphabet(alphabet, substitution)
-    }
+    fn hide_letters(self,
+                    remove_from_alphabet : bool,
+                    should_hide : &dyn Fn(&Letter) -> bool) -> Self {
 
-    fn hide_letters(self, hide_alphabet : bool, should_hide: &dyn Fn(&Letter) -> bool) -> Self {
         let mut new_transitions = vec![];
         let mut new_epsilon_trans = self.epsilon_trans;
         for (orig_id,transition) in self.transitions.into_iter().enumerate() {
-            let mut new_transition = hashmap!{};
+            let mut new_transition : HashMap<Letter, HashSet<usize>> = hashmap!{};
             for (letter, targets) in transition {
                 if should_hide(&letter) {
                     new_epsilon_trans.get_mut(orig_id).unwrap().extend(targets);
@@ -63,6 +64,11 @@ impl<Letter: AutLetter> AutAlphabetSubstitutable<Letter> for AutNFAIT<Letter> {
             }
             new_transitions.push(new_transition);
         }
-        AutNFAIT::from_raw(self.alphabet,self.initials,self.finals,new_transitions,new_epsilon_trans).unwrap()
+        AutNFAIT::from_raw(
+            get_new_alphabet_from_hiding(&self.alphabet,remove_from_alphabet,should_hide),
+            self.initials,
+            self.finals,
+            new_transitions,
+            new_epsilon_trans).unwrap()
     }
 }

@@ -202,7 +202,7 @@ impl KwStatesMap {
         // ***
         let mut new_rows_map_to_det_states = vec![];
         let mut new_matrix_map_to_nfa_states= vec![];
-        for (row_id, row) in self.matrix_map_to_nfa_states.iter().enumerate() {
+        for row_id in 0..self.matrix_map_to_nfa_states.len() {
             if sorted_rows_to_merge.contains(&row_id) {
                 if &row_id == sorted_rows_to_merge.first().unwrap() {
                     // need clone for compiler but should only happen once
