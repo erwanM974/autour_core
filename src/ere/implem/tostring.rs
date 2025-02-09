@@ -73,7 +73,11 @@ impl<Letter, Printer> ExpBREPrintable<Letter, Printer> for TermERE<Letter> where
             TermERE::Literal(letter) => {printer.get_letter_string_repr(letter)},
             TermERE::Wildcard => {printer.get_wildcard_symbol(use_html).to_string()},
             TermERE::Negation(sub_term) => {
-                let sub_term_as_string = <TermERE<Letter> as ExpBREPrintable<Letter, Printer>>::regexp_to_string(sub_term, use_html);
+                let sub_term_as_string = <TermERE<Letter> as ExpBREPrintable<Letter, Printer>>::regexp_to_string(
+                    sub_term, 
+                    use_html,
+                    printer
+                );
                 if sub_term.is_string_repr_atomic(printer) {
                     format!("{:}{:}", printer.get_negate_symbol(use_html), sub_term_as_string)
                 } else {
@@ -83,7 +87,7 @@ impl<Letter, Printer> ExpBREPrintable<Letter, Printer> for TermERE<Letter> where
             TermERE::Concat(sub_terms) => {
                 let sub_strs : Vec<(String,bool)> = sub_terms.iter()
                     .map(|t|
-                        (<TermERE<Letter> as ExpBREPrintable<Letter, Printer>>::regexp_to_string(t, use_html),
+                        (<TermERE<Letter> as ExpBREPrintable<Letter, Printer>>::regexp_to_string(t, use_html,printer),
                          t.is_string_repr_atomic(printer)))
                     .collect();
                 sub_strs.iter().fold("".to_owned(),
@@ -97,7 +101,7 @@ impl<Letter, Printer> ExpBREPrintable<Letter, Printer> for TermERE<Letter> where
             TermERE::Union(sub_terms) => {
                 let sub_strs : Vec<(String,bool)> = sub_terms.iter()
                     .map(|t|
-                        (<TermERE<Letter> as ExpBREPrintable<Letter, Printer>>::regexp_to_string(t, use_html),
+                        (<TermERE<Letter> as ExpBREPrintable<Letter, Printer>>::regexp_to_string(t, use_html,printer),
                          t.is_string_repr_atomic(printer)))
                     .collect();
                 sub_strs.iter().fold("".to_owned(),
@@ -111,7 +115,7 @@ impl<Letter, Printer> ExpBREPrintable<Letter, Printer> for TermERE<Letter> where
             TermERE::Intersection(sub_terms) => {
                 let sub_strs : Vec<(String,bool)> = sub_terms.iter()
                     .map(|t|
-                        (<TermERE<Letter> as ExpBREPrintable<Letter, Printer>>::regexp_to_string(t, use_html),
+                        (<TermERE<Letter> as ExpBREPrintable<Letter, Printer>>::regexp_to_string(t, use_html,printer),
                          t.is_string_repr_atomic(printer)))
                     .collect();
                 sub_strs.iter().fold("".to_owned(),
@@ -123,7 +127,7 @@ impl<Letter, Printer> ExpBREPrintable<Letter, Printer> for TermERE<Letter> where
                                          })
             },
             TermERE::Repeat(sub_term, min, None) => {
-                let sub_term_as_string = <TermERE<Letter> as ExpBREPrintable<Letter, Printer>>::regexp_to_string(sub_term, use_html);
+                let sub_term_as_string = <TermERE<Letter> as ExpBREPrintable<Letter, Printer>>::regexp_to_string(sub_term, use_html,printer);
                 match min {
                     0 => {
                         if sub_term.is_string_repr_atomic(printer) {
@@ -149,7 +153,7 @@ impl<Letter, Printer> ExpBREPrintable<Letter, Printer> for TermERE<Letter> where
                 }
             },
             TermERE::Repeat(sub_term, 0, Some(1)) => {
-                let sub_term_as_string = <TermERE<Letter> as ExpBREPrintable<Letter, Printer>>::regexp_to_string(sub_term, use_html);
+                let sub_term_as_string = <TermERE<Letter> as ExpBREPrintable<Letter, Printer>>::regexp_to_string(sub_term, use_html,printer);
                 if sub_term.is_string_repr_atomic(printer) {
                     format!("{:}?",sub_term_as_string)
                 } else {
@@ -157,7 +161,7 @@ impl<Letter, Printer> ExpBREPrintable<Letter, Printer> for TermERE<Letter> where
                 }
             },
             TermERE::Repeat(sub_term, min,  Some(max)) => {
-                let mut sub_term_as_string = <TermERE<Letter> as ExpBREPrintable<Letter, Printer>>::regexp_to_string(sub_term, use_html);
+                let mut sub_term_as_string = <TermERE<Letter> as ExpBREPrintable<Letter, Printer>>::regexp_to_string(sub_term, use_html,printer);
                 if !sub_term.is_string_repr_atomic(printer) {
                     sub_term_as_string = format!("({:})",sub_term_as_string)
                 }

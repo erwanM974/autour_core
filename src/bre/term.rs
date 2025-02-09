@@ -68,7 +68,7 @@ impl<Letter: AutLetter> TermBRE<Letter> {
             TermBRE::Concat(sub_terms) => {
                 sub_terms.iter().any(|t| t.is_empty())
             },
-            TermBRE::Kleene(sub_term) => false
+            TermBRE::Kleene(_) => false
         }
     }
 
@@ -90,7 +90,9 @@ impl<Letter: AutLetter> TermBRE<Letter> {
     pub fn unite(mut self, other : Self) -> Self {
         self = match (self,other) {
             (TermBRE::Union(mut sub1), TermBRE::Union(sub2)) => {
-                sub2.into_iter().map(|t| sub1.insert(t));
+                for t in sub2 {
+                    sub1.insert(t);
+                }
                 TermBRE::Union(sub1)
             },
             (TermBRE::Empty, t) => t,

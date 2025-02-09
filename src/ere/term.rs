@@ -66,7 +66,7 @@ impl<Letter: AutLetter> TermERE<Letter> {
         alphabet
     }
 
-    pub fn is_empty(&self) -> bool {
+    /*pub fn is_empty(&self) -> bool {
         match self {
             TermERE::Empty => true,
             TermERE::Epsilon => false,
@@ -85,14 +85,14 @@ impl<Letter: AutLetter> TermERE<Letter> {
             TermERE::Negation(sub_term) => {
                 unimplemented!("to implement")
             },
-            TermERE::Repeat(sub_term,min,_) => {
-                match min {
-                    0 => false,
+            TermERE::Repeat(sub_term,_, max) => {
+                match max {
+                    Some(0) => true,
                     _ => sub_term.is_empty()
                 }
             }
         }
-    }
+    }*/
 
     pub fn expresses_epsilon(&self) -> bool {
         match self {

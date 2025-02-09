@@ -1,6 +1,6 @@
 [package]
 name = "autour_core"
-version = "0.1.11"
+version = "0.1.12"
 authors = ["Erwan Mahe"]
 edition = "2021"
 
@@ -17,8 +17,8 @@ keywords = ["automata", "dfa", "nfa", "gnfa", "regex"]
 
 [dependencies]
 maplit = "1.0.2"
-itertools = "0.13.0"
-strum = "0.26.3"                                # for IntoStaticStr
-strum_macros = "0.26.4"                         # ...
-graphviz_dot_builder = "0.1.2"                  # for drawing graphs
+itertools = "0.14.0"
+strum = "0.27.0"                                # for IntoStaticStr
+strum_macros = "0.27.0"                         # ...
+graphviz_dot_builder = "0.1.4"                  # for drawing graphs
 num = "0.4.3"

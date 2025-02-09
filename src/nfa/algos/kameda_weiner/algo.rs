@@ -16,7 +16,7 @@ limitations under the License.
 
 
 
-use std::collections::{BTreeSet};
+use std::collections::BTreeSet;
 use itertools::Itertools;
 
 use graphviz_dot_builder::edge::edge::GraphVizEdge;
@@ -135,18 +135,26 @@ pub fn draw_kameda_weiner_process<Letter : AutLetter,Printer : AbstractLanguageP
     let sm_graph = sm_nfa.to_dot(true,&hashset!{},printer);
     let rsm_graph = rsm_nfa.to_dot(true,&hashset!{},printer);
     let min_graph = legit.nfa.to_dot(true,&hashset!{},printer);
-    orig_graph.print_dot(parent_folder,
-                         "orig",
-                         &GraphVizOutputFormat::png);
-    sm_graph.print_dot(parent_folder,
-                       "sm",
-                       &GraphVizOutputFormat::png);
-    rsm_graph.print_dot(parent_folder,
-                        "rsm",
-                        &GraphVizOutputFormat::png);
-    min_graph.print_dot(parent_folder,
-                        "min",
-                        &GraphVizOutputFormat::png);
+    let _ = orig_graph.print_dot(
+        parent_folder,
+        "orig",
+        &GraphVizOutputFormat::png
+    );
+    let _ = sm_graph.print_dot(
+        parent_folder,
+        "sm",
+        &GraphVizOutputFormat::png
+    );
+    let _ = rsm_graph.print_dot(
+        parent_folder,
+        "rsm",
+        &GraphVizOutputFormat::png
+    );
+    let _ = min_graph.print_dot(
+        parent_folder,
+        "min",
+        &GraphVizOutputFormat::png
+    );
 
     let mut grid_as_str = "".to_string();
     for (grid_rows,grid_cols) in &legit.grids {
@@ -198,9 +206,11 @@ pub fn draw_kameda_weiner_process<Letter : AutLetter,Printer : AbstractLanguageP
                                              None,
                                              vec![]));
 
-    bridge_graph.print_dot(&parent_folder,
-                           &name,
-                           &GraphVizOutputFormat::svg);
+    let _ = bridge_graph.print_dot(
+        &parent_folder,
+        &name,
+        &GraphVizOutputFormat::svg
+    );
 }
 
 
@@ -255,7 +265,7 @@ mod tests {
         let nfa = get_bigger_example();
         println!("testing Kameda-Weiner on a NFA with {:} states with alphabet of {:} characters", nfa.transitions.len(), nfa.alphabet.len());
         let now = Instant::now();
-        let (dfa,sm,rsm,legit) = kameda_weiner_algorithm(&nfa);
+        let (_dfa,_sm,_rsm,legit) = kameda_weiner_algorithm(&nfa);
         let elapsed = now.elapsed();
         let new_num_states = match legit {
             None => {nfa.transitions.len()},
